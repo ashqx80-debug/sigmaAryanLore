@@ -4,9 +4,9 @@
 #include "lemlib/chassis/chassis.hpp"
 
 // left motor group
-pros::MotorGroup left_motor_group({1, -2, 3}, pros::MotorGears::blue);
+pros::MotorGroup left_motor_group({-3, 2, -1}, pros::MotorGears::blue);
 // right motor group
-pros::MotorGroup right_motor_group({4, -5, 6}, pros::MotorGears::blue);
+pros::MotorGroup right_motor_group({6, -5, 4}, pros::MotorGears::blue);
 // drivetrain settings
 lemlib::Drivetrain drivetrain(&left_motor_group, // left motor group
                               &right_motor_group, // right motor group
@@ -146,10 +146,13 @@ void opcontrol() {
     while (true) {
         // get left y and right x positions
         int leftY = master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
-        int leftX = master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_X);
+        int rightX = master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
 
         // move the robot
-        chassis.arcade(leftY, leftX);
+        // chassis.arcade(leftY, rightX);
+		left_motor_group.move(leftY - rightX);
+		right_motor_group.move(leftY + rightX);
+
 
         // delay to save resources
         pros::delay(25);
