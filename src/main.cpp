@@ -2,6 +2,7 @@
 #include "main.h"
 #include "lemlib/api.hpp" // IWYU pragma: keep
 #include "lemlib/chassis/chassis.hpp"
+#include "pros/motors.h"
 
 // Intake motor (change the port and gearset as needed)
 pros::Motor intake_motor(7, pros::MotorGears::blue); 
@@ -25,6 +26,16 @@ lemlib::Drivetrain drivetrain(&left_motor_group, // left motor group
                               2 // horizontal drift is 2 (for now)
 );
 pros::Imu imu(10);
+lemlib::ExpoDriveCurve throttle_curve(3, // joystick deadband out of 127
+                                     10, // minimum output where drivetrain will move out of 127
+                                     1.019 // expo curve gain
+);
+
+// input curve for steer input during driver control
+lemlib::ExpoDriveCurve steer_curve(3, // joystick deadband out of 127
+                                  10, // minimum output where drivetrain will move out of 127
+                                  1.019 // expo curve gain
+);
 // horizontal tracking wheel encoder
 pros::Rotation horizontal_encoder(20);
 // vertical tracking wheel encoder
@@ -152,13 +163,16 @@ void autonomous() {}
 
 
 void opcontrol() {
+    chassis.setBrakeMode(pros::E_MOTOR_BRAKE_HOLD);
     while (true) {
         // === DRIVE CONTROL ===
         int leftY = master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
         int rightX = master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
 
-        left_motor_group.move(leftY + rightX);
-        right_motor_group.move(leftY - rightX);
+
+        // move the robot
+        // prioritize steering slightly
+        chassis.arcade(leftY, rightX, false, 0.6);
 
         // === INTAKE CONTROL ===
         // R1 = Intake forward
@@ -168,7 +182,7 @@ void opcontrol() {
             intake_hood_roller.move(-127);
         } 
         else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
-            intake_motor.move(127); // Full speed reverse (push back)
+            intake_motor.move(-127); // Full speed reverse (push back)
         } 
         else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L1)) {
             intake_hood_roller.move(127); // Full speed forward (lift hood)
