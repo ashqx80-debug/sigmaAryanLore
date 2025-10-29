@@ -3,10 +3,19 @@
 #include "lemlib/api.hpp" // IWYU pragma: keep
 #include "lemlib/chassis/chassis.hpp"
 
+// Intake motor (change the port and gearset as needed)
+pros::Motor intake_motor(7, pros::MotorGears::blue); 
+pros::Motor intake_hood_roller(8, pros::MotorGears::blue); 
+pros::ADIDigitalOut piston('A'); // Piston on port A
+bool pistonState = false; // false = retracted, true = extended
+
+pros::Controller master(pros::E_CONTROLLER_MASTER);
+
+const int deadband = 5; 
 // left motor group
-pros::MotorGroup left_motor_group({-3, 2, -1}, pros::MotorGears::blue);
+pros::MotorGroup left_motor_group({3, -2, -1}, pros::MotorGears::blue);
 // right motor group
-pros::MotorGroup right_motor_group({6, -5, 4}, pros::MotorGears::blue);
+pros::MotorGroup right_motor_group({-6, 5, 4}, pros::MotorGears::blue);
 // drivetrain settings
 lemlib::Drivetrain drivetrain(&left_motor_group, // left motor group
                               &right_motor_group, // right motor group
@@ -122,10 +131,7 @@ void competition_initialize() {}
  * from where it left off.
  */
  // Declare your controller
-pros::Controller master(pros::E_CONTROLLER_MASTER);
 
-// Tank drive control settings
-const int deadband = 5; // 
 void autonomous() {}
 
 /**
@@ -141,22 +147,44 @@ void autonomous() {}
  * operator control task will be stopped. Re-enabling the robot will restart the
  * task, not resume it from where it left off.
  */
+
+
+
+
 void opcontrol() {
-    // loop forever
     while (true) {
-        // get left y and right x positions
+        // === DRIVE CONTROL ===
         int leftY = master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
         int rightX = master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
 
-        // move the robot
-        // chassis.arcade(leftY, rightX);
-		left_motor_group.move(leftY - rightX);
-		right_motor_group.move(leftY + rightX);
+        left_motor_group.move(leftY + rightX);
+        right_motor_group.move(leftY - rightX);
 
+        // === INTAKE CONTROL ===
+        // R1 = Intake forward
+        // R2 = Reverse / Push back
+        if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
+            intake_motor.move(127);  // Full speed forward
+            intake_hood_roller.move(-127);
+        } 
+        else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
+            intake_motor.move(127); // Full speed reverse (push back)
+        } 
+        else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L1)) {
+            intake_hood_roller.move(127); // Full speed forward (lift hood)
+            intake_motor.move(-127);
+        } 
+        else {
+            intake_motor.brake();    
+            intake_hood_roller.brake();
+                 // stop intake when no buttons pressed
+        }
+        if (master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)) {
+            pistonState = !pistonState;        // toggle piston state
+            piston.set_value(pistonState);     // extend/retract
+            pros::lcd::print(3, "Piston: %s", pistonState ? "Extended" : "Retracted");
+        }
 
-        // delay to save resources
-        pros::delay(25);
+            pros::delay(25);
+        }
     }
-}
-
-
