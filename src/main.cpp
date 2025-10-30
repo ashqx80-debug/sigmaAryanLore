@@ -1,14 +1,20 @@
-
 #include "main.h"
 #include "lemlib/api.hpp" // IWYU pragma: keep
 #include "lemlib/chassis/chassis.hpp"
+#include "pros/adi.hpp"
 #include "pros/motors.h"
 
 // Intake motor (change the port and gearset as needed)
 pros::Motor intake_motor(7, pros::MotorGears::blue); 
 pros::Motor intake_hood_roller(8, pros::MotorGears::blue); 
-pros::ADIDigitalOut piston('A'); // Piston on port A
-bool pistonState = false; // false = retracted, true = extended
+pros::ADIDigitalOut hood('A'); // Piston on port A
+pros::ADIDigitalOut lToungeue('B'); // Left tongue on port B
+pros::ADIDigitalOut rToungeue('C'); // Right tongue on port C
+pros::ADIDigitalOut midGoal('D'); // Mid goal piston on port D
+bool hoodState = false; // false = retracted, true = extended
+bool lToungeueState = false; // false = retracted, true = extended
+bool rToungeueState = false; // false = retracted, true = extended
+bool midGoalState = false; // false = retracted, true = extended
 
 pros::Controller master(pros::E_CONTROLLER_MASTER);
 
@@ -177,27 +183,27 @@ void opcontrol() {
         // === INTAKE CONTROL ===
         // R1 = Intake forward
         // R2 = Reverse / Push back
-        if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
+        if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
             intake_motor.move(127);  // Full speed forward
             intake_hood_roller.move(-127);
+            hoodState = true; // extend hood when intaking
+            hood.set_value(hoodState); // Extend hood when scoring
         } 
-        else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
-            intake_motor.move(-127); // Full speed reverse (push back)
+        else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
+            intake_motor.move(-127);
+            intake_hood_roller.move_voltage(0); // Full speed reverse (push back)
         } 
         else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L1)) {
             intake_hood_roller.move(127); // Full speed forward (lift hood)
             intake_motor.move(-127);
         } 
         else {
-            intake_motor.brake();    
-            intake_hood_roller.brake();
-                 // stop intake when no buttons pressed
+            intake_motor.move_voltage(0);    
+            intake_hood_roller.move_voltage(0);
+            hoodState = false; // retract hood when not intaking
+            hood.set_value(hoodState);
         }
-        if (master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)) {
-            pistonState = !pistonState;        // toggle piston state
-            piston.set_value(pistonState);     // extend/retract
-            pros::lcd::print(3, "Piston: %s", pistonState ? "Extended" : "Retracted");
-        }
+        
 
             pros::delay(25);
         }
