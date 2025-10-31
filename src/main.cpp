@@ -32,7 +32,7 @@ lemlib::ExpoDriveCurve throttle_curve(3, // joystick deadband out of 127
 );
 
 // input curve for steer input during driver control
-lemlib::ExpoDriveCurve steer_curve(3, // joystick deadband out of 127
+lemlib::ExpoDriveCurve steer_curve(3,    // joystick deadband out of 127
                                   10, // minimum output where drivetrain will move out of 127
                                   1.019 // expo curve gain
 );
@@ -182,7 +182,7 @@ void opcontrol() {
             intake_hood_roller.move(-127);
         } 
         else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
-            intake_motor.move(-127); // Full speed reverse (push back)
+            intake_motor.move(127); // Full speed reverse (push back)
         } 
         else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L1)) {
             intake_hood_roller.move(127); // Full speed forward (lift hood)
