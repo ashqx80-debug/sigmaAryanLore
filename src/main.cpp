@@ -7,7 +7,7 @@
 // Intake motor (change the port and gearset as needed)
 pros::Motor intake_motor(7, pros::MotorGears::blue); 
 pros::Motor intake_hood_roller(8, pros::MotorGears::blue); 
-pros::ADIDigitalOut piston('A'); // Piston on port A
+pros::adi::DigitalOut piston('A'); // Piston on port A
 bool pistonState = false; // false = retracted, true = extended
 
 pros::Controller master(pros::E_CONTROLLER_MASTER);
@@ -21,20 +21,20 @@ pros::MotorGroup right_motor_group({-6, 5, 4}, pros::MotorGears::blue);
 lemlib::Drivetrain drivetrain(&left_motor_group, // left motor group
                               &right_motor_group, // right motor group
                               10, // 10 inch track width
-                              lemlib::Omniwheel::NEW_4, // using new 4" omnis
+                              lemlib::Omniwheel::NEW_275, // using new 4" omnis
                               360, // drivetrain rpm is 360
                               2 // horizontal drift is 2 (for now)
 );
 pros::Imu imu(10);
 lemlib::ExpoDriveCurve throttle_curve(3, // joystick deadband out of 127
-                                     10, // minimum output where drivetrain will move out of 127
-                                     1.019 // expo curve gain
+                                     50, // minimum output where drivetrain will move out of 127
+                                     1.109 // expo curve gain
 );
 
 // input curve for steer input during driver control
 lemlib::ExpoDriveCurve steer_curve(3,    // joystick deadband out of 127
-                                  10, // minimum output where drivetrain will move out of 127
-                                  1.019 // expo curve gain
+                                  50, // minimum output where drivetrain will move out of 127
+                                  1.109 // expo curve gain
 );
 // horizontal tracking wheel encoder
 pros::Rotation horizontal_encoder(20);
@@ -168,11 +168,14 @@ void opcontrol() {
         // === DRIVE CONTROL ===
         int leftY = master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
         int rightX = master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
+        
+        left_motor_group.move(leftY - rightX);
+		right_motor_group.move(leftY + rightX);
 
 
         // move the robot
         // prioritize steering slightly
-        chassis.arcade(leftY, rightX, false, 0.6);
+    
 
         // === INTAKE CONTROL ===
         // R1 = Intake forward
@@ -199,6 +202,6 @@ void opcontrol() {
             pros::lcd::print(3, "Piston: %s", pistonState ? "Extended" : "Retracted");
         }
 
-            pros::delay(25);
+            pros::delay(20);
         }
     }
