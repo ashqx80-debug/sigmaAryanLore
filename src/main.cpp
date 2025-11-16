@@ -1,6 +1,7 @@
 #include "main.h"
 #include "lemlib/api.hpp"
 #include "lemlib/chassis/chassis.hpp"
+#include "lemlib/chassis/trackingWheel.hpp"
 #include "pros/adi.hpp"
 #include "pros/misc.h"
 #include "pros/motors.h"
@@ -36,21 +37,21 @@ pros::MotorGroup right_motor_group({-11, 5, 4}, pros::MotorGears::blue);
 lemlib::Drivetrain drivetrain(
     &left_motor_group,
     &right_motor_group,
-    10, // track width in inches
+    11, // traxck width in inches
     lemlib::Omniwheel::NEW_325,
-    360, // rpm
+    450, // rpm
     2    // drift
 );
 
 // IMU
-pros::Imu imu(12);
+pros::Imu imu(10);
 
 // Tracking wheels
 pros::Rotation horizontal_encoder(21);
-pros::Rotation vertical_encoder(20);
+pros::Rotation vertical_encoder(-20);
 
 lemlib::TrackingWheel horizontal_tracking_wheel(&horizontal_encoder, lemlib::Omniwheel::NEW_2, -5.75);
-lemlib::TrackingWheel vertical_tracking_wheel(&vertical_encoder, lemlib::Omniwheel::NEW_2, -2.5);
+lemlib::TrackingWheel vertical_tracking_wheel(&vertical_encoder, lemlib::Omniwheel::NEW_275, -0.25);
 
 // Odometry sensors
 lemlib::OdomSensors sensors(
@@ -63,45 +64,50 @@ lemlib::OdomSensors sensors(
 
 // PID tuning
 lemlib::ControllerSettings lateral_controller(
-    4, 0.005, 0, 0, 0, 0, 0, 0, 0
+    5.7, 0, 27, 3, 1, 100, 3, 500, 20
 );
 
 lemlib::ControllerSettings angular_controller(
-    0.55, 0 , 10, 3, 1, 100, 3, 500, 0
+    4.05, 0.0001 , 35, 3, 1, 100, 3, 500, 0
+);
+
+
+// input curve for steer i
+
+// create the chassis
+lemlib::Chassis chassis(drivetrain,
+                        lateral_controller,
+                        angular_controller,
+                        sensors
 );
 
 // Chassis
-lemlib::Chassis chassis(
-    drivetrain,
-    lateral_controller,
-    angular_controller,
-    sensors
-);
 
 // === HELPER FUNCTIONS ===
 double exponential(double normalizedInput) {
     normalizedInput = pow(normalizedInput, 3);
-    return (normalizedInput / 20000);
+    return (normalizedInput / 18500);
 }
 
 // === UNJAMMER TASK ===
 // Runs in background; monitors intake for jams
-void unjammer_task(void*) {
-    while (true) {
-        // If intake is running forward (R1 pressed) and jammed (low velocity)
-        if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1) &&
-            !master.get_digital(pros::E_CONTROLLER_DIGITAL_L1)) {
+
+//  void unjammer_task(void*) {
+//      while (true) {
+//          // If intake is running forward (R1 pressed) and jammed (low velocity)
+//          if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1) &&
+//              !master.get_digital(pros::E_CONTROLLER_DIGITAL_L1)) {
             
-            // Detect jam: commanded forward but velocity too low
-            if (fabs(intake_motor.get_actual_velocity()) < 5) {
-                intake_motor.move(-127);  // Reverse to clear jam
-                pros::delay(300);
-                intake_motor.move(127);   // Resume intake
-            }
-        }
-        pros::delay(50); // Check 20 times per second
-    }
-}
+//              // Detect jam: commanded forward but velocity too low
+//              if (fabs(intake_motor.get_actual_velocity()) < 5) {
+//                  intake_motor.move(-127);  // Reverse to clear jam
+//                  pros::delay(300);
+//                  intake_motor.move(127);   // Resume intake
+//              }
+//          }
+//         pros::delay(50); // Check 20 times per second
+//     }
+// }
 
 // === LCD CALLBACK ===
 void on_center_button() {
@@ -117,13 +123,13 @@ void on_center_button() {
 // === INITIALIZE ===
 void initialize() {
     pros::lcd::initialize();
-    imu.reset();
+    //imu.reset();
     chassis.calibrate();
 
     pros::lcd::register_btn1_cb(on_center_button);
 
     // Start background unjammer task
-    pros::Task unjammerBackground(unjammer_task, (void*)"");
+    // pros::Task unjammerBackground(unjammer_task, (void*)"");
 }
 
 // === DISABLED & COMP INIT ===
@@ -136,23 +142,113 @@ void autonomous() {
     chassis.setPose(0, 0, 0);
     
 
-    int autonSelector = 0;
+    int autonSelector = 1;
 
     switch (autonSelector) {
         case 0:
             pros::lcd::set_text(2, "Auton 0 selected");
             chassis.moveToPoint(0,24, 4000);
             chassis.waitUntilDone();
-            
             break;
+
         case 1:
-            pros::lcd::set_text(2, "Auton 1 selected");
+            chassis.setPose(-12,26,0);
+            chassis.moveToPoint(-27, 50, 1700, {.maxSpeed=50});
+            intake_motor.move(127);
+            pros::delay(50);
+            intake_motor.move(-127);
+            pros::delay(50);
+            intake_motor.move(127);
+            chassis.waitUntilDone();
+            chassis.turnToPoint(-52,20, 1000);
+            chassis.moveToPoint(-52, 20, 1500);
+            chassis.waitUntil(12);
+            intake_motor.move(0);
+            chassis.turnToHeading(180, 1000);
+            chassis.moveToPoint(-50,42, 1000, {.forwards = false});
+            chassis.waitUntil(5);
+            intake_motor.move(127);
+            intake_hood_roller.move(-127);
+            intake_motor.move(127);
+            pros::delay(50);
+            intake_motor.move(-127);
+            pros::delay(50);
+            intake_motor.move(127);
+            rTongue.set_value(true);
+            pros::delay(2000);
+            
+            chassis.moveToPoint(-50, 0, 1500,{.maxSpeed=70});
+            chassis.waitUntil(5);
+            intake_hood_roller.move(0);
+            chassis.waitUntilDone();
+            pros::delay(2000);
+            chassis.moveToPoint(-50,24, 1000, {.forwards = false});
+            chassis.turnToHeading(180, 1000);
+            chassis.moveToPoint(-50, 42, 1000, {.forwards = false});
+            rTongue.set_value(false);
+            chassis.waitUntilDone();
+            intake_motor.move(127); 
+            intake_motor.move(127);
+            pros::delay(50);
+            intake_motor.move(-127);
+            pros::delay(50);
+            intake_motor.move(127);
+            intake_hood_roller.move(-127);
+            pros::delay(2000);
+            intake_hood_roller.move(0);
+            intake_motor.move(0);
+            chassis.moveToPoint(-50, 30, 1000);
+            chassis.moveToPoint(-50, 42, 1000, {.forwards= false});
             break;
         case 2:
-            pros::lcd::set_text(2, "Auton 2 selected");
+            chassis.setPose(12,24,0);
+            chassis.moveToPoint(12, 48, 1000);
+            chassis.waitUntilDone();
+            chassis.turnToHeading(90, 1000);
+            chassis.moveToPoint(36, 48, 1000);
+            intake_motor.move(127);
+            chassis.waitUntilDone();
+            chassis.turnToPoint(48,24 , 1000);
+            chassis.moveToPoint(48, 24, 1000);
+            chassis.waitUntil(12);
+            intake_motor.move(0);
+            chassis.waitUntilDone();
+            chassis.turnToHeading(0, 1000);
+            chassis.moveToPoint(48,42, 1000, {.forwards = false});
+            chassis.waitUntil(5);
+            intake_motor.move(127);
+            chassis.waitUntilDone();
+            intake_hood_roller.move(-127);
+            pros::delay(2000);
+            rTongue.set_value(true);
+            chassis.moveToPoint(48, 12, 1000);
+            chassis.waitUntil(5);
+            intake_hood_roller.move(0);
+            chassis.waitUntilDone();
+            pros::delay(2500);
+            chassis.moveToPoint(48,24, 1000, {.forwards = false});
+            chassis.turnToHeading(0, 1000);
+            chassis.moveToPoint(48, 42, 1000, {.forwards = false});
+            rTongue.set_value(false);
+            chassis.waitUntilDone();
+            intake_hood_roller.move(-127);
+            pros::delay(2000);
+            intake_hood_roller.move(0);
+            intake_motor.move(0);
             break;
-        default:
-            pros::lcd::set_text(2, "Unknown auton: none");
+            
+            case 3:
+            // chassis.moveToPoint(0, 24, 2000);
+            // pros::delay(2500);
+            // chassis.moveToPoint(0, 0, 2000, {.forwards=false});
+            //chassis.moveToPoint(0,24, 4000);
+            
+
+            break;
+            case 4:
+            intake_motor.move(127);
+            pros::delay(500);
+            intake_motor.move(0);
             break;
     }
 }
@@ -164,14 +260,12 @@ void opcontrol() {
     while (true) {
         // === DRIVE ===
         int leftY = master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
-        int rightX = master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X)/1.2;
+        int rightX = master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X)/2;
         int leftyY = exponential(leftY);
         int rightxX = exponential(rightX);
-
-        // Arcade drive
-        left_motor_group.move(leftyY + rightxX);
-        right_motor_group.move(leftyY - rightxX);
-
+        left_motor_group.move(leftyY+rightX);
+        right_motor_group.move(leftyY-rightX);
+  
         // === INTAKE CONTROL ===
         if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
             intake_motor.move(127);
@@ -204,7 +298,7 @@ void opcontrol() {
 
         // Display IMU heading
         pros::lcd::print(3, "Heading: %.2f", imu.get_heading());
-
+         pros::lcd::print(4, "Heading: %.2f", vertical_tracking_wheel.getDistanceTraveled());
         pros::delay(20);
     }
 }
