@@ -84,8 +84,7 @@ double exponential(double normalizedInput) {
     return (normalizedInput / 20000);
 }
 
-// === UNJAMMER TASK ===
-// Runs in background; monitors intake for jams
+
 void unjammer_task(void*) {
     while (true) {
         // If intake is running forward (R1 pressed) and jammed (low velocity)
@@ -168,7 +167,7 @@ void opcontrol() {
         int leftyY = exponential(leftY);
         int rightxX = exponential(rightX);
 
-        // Arcade drive
+        // Our expo drive
         left_motor_group.move(leftyY + rightxX);
         right_motor_group.move(leftyY - rightxX);
 
