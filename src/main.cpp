@@ -24,6 +24,12 @@ pros::Controller master(pros::E_CONTROLLER_MASTER);
 pros::MotorGroup left_motor_group({-1, 3, -2}, pros::MotorGears::blue);
 pros::MotorGroup right_motor_group({-6, 5, 4}, pros::MotorGears::blue);
 
+bool tounge = false;
+bool midgoal = false;
+bool hood = false;
+
+/* ===================== DRIVETRAIN ===================== */
+
 lemlib::Drivetrain drivetrain(
     &left_motor_group,
     &right_motor_group,
@@ -33,24 +39,18 @@ lemlib::Drivetrain drivetrain(
     2
 );
 
-pros::Imu imu(10);
+/* ===================== SENSORS ===================== */
 
+pros::Imu imu(10);
 pros::Rotation horizontal_encoder(21);
 pros::Rotation vertical_encoder(-13);
 
-lemlib::TrackingWheel horizontal_tracking_wheel(
-    &horizontal_encoder, lemlib::Omniwheel::NEW_2, -5.75);
+lemlib::TrackingWheel horizontal_tracking_wheel(&horizontal_encoder, lemlib::Omniwheel::NEW_2, -5.75);
+lemlib::TrackingWheel vertical_tracking_wheel(&vertical_encoder, lemlib::Omniwheel::NEW_275, -0.25);
 
-lemlib::TrackingWheel vertical_tracking_wheel(
-    &vertical_encoder, lemlib::Omniwheel::NEW_275, -0.25);
+lemlib::OdomSensors sensors(&vertical_tracking_wheel, nullptr, &horizontal_tracking_wheel, nullptr, &imu);
 
-lemlib::OdomSensors sensors(
-    &vertical_tracking_wheel,
-    nullptr,
-    &horizontal_tracking_wheel,
-    nullptr,
-    &imu
-);
+/* ===================== CONTROLLERS ===================== */
 
 lemlib::ControllerSettings lateral_controller(5.7, 0, 27, 3, 1, 100, 3, 500, 20);
 lemlib::ControllerSettings angular_controller(4.05, 0.0001, 35, 3, 1, 100, 3, 500, 0);
@@ -72,7 +72,7 @@ constexpr double FIELD_Y_MAX =  72;
 
 /* ===================== MCL PARAMETERS ===================== */
 
-constexpr int NUM_PARTICLES = 250;
+constexpr int NUM_PARTICLES = 300;
 constexpr double SENSOR_STD_DEV = 2.0;
 constexpr double BASE_LINEAR_NOISE = 0.25;
 constexpr double BASE_ANG_NOISE = 1.0 * (M_PI / 180);
@@ -115,7 +115,7 @@ int fieldToScreenY(double y) {
 void drawParticles() {
     pros::screen::erase();
 
-    pros::screen::set_pen(0xFFFFFF);
+    pros::screen::set_pen(0xAAAAAA);
     for (auto &p : particles) {
         int sx = fieldToScreenX(p.x);
         int sy = fieldToScreenY(p.y);
@@ -125,12 +125,11 @@ void drawParticles() {
 
     int mx = fieldToScreenX(mcl_x);
     int my = fieldToScreenY(mcl_y);
-
     pros::screen::set_pen(0xFF0000);
     pros::screen::fill_circle(mx, my, 3);
 
-    int hx = mx + 10 * cos(mcl_h);
-    int hy = my - 10 * sin(mcl_h);
+    int hx = mx + 12 * cos(mcl_h);
+    int hy = my - 12 * sin(mcl_h);
     pros::screen::draw_line(mx, my, hx, hy);
 }
 
@@ -158,7 +157,11 @@ void mcl_init(double x, double y, double h) {
 
 /* ===================== MOTION MODEL ===================== */
 
-void mcl_motion_update(double forward, double sideways, double dtheta, bool pushing) {
+void mcl_motion_update(double forward, double sideways, double dtheta) {
+    bool pushing =
+        fabs(left_motor_group.get_actual_velocity(0)) < 5 &&
+        fabs(right_motor_group.get_actual_velocity(0)) < 5;
+
     double linScale = pushing ? 3.0 : 1.0;
     double angScale = pushing ? 2.0 : 1.0;
 
@@ -191,19 +194,20 @@ void mcl_sensor_update() {
 
     double sum = 0;
     for (auto &p : particles) {
-        double w =
+        p.weight =
             exp(-pow(dl - expected_left(p), 2) / (2 * SENSOR_STD_DEV * SENSOR_STD_DEV)) *
             exp(-pow(dr - expected_right(p), 2) / (2 * SENSOR_STD_DEV * SENSOR_STD_DEV)) *
             exp(-pow(df - expected_front(p), 2) / (2 * SENSOR_STD_DEV * SENSOR_STD_DEV));
-        p.weight = w;
-        sum += w;
+        sum += p.weight;
     }
+
+    if(sum == 0) return;
 
     for (auto &p : particles)
         p.weight /= sum;
 }
 
-/* ===================== RESAMPLING ===================== */
+/* ===================== RESAMPLE ===================== */
 
 void mcl_resample() {
     std::vector<Particle> newSet;
@@ -214,16 +218,15 @@ void mcl_resample() {
     for (int i = 1; i < NUM_PARTICLES; i++)
         cumulative[i] = cumulative[i - 1] + particles[i].weight;
 
-    double step = 1.0 / NUM_PARTICLES;
-    double r = ((double) rand() / RAND_MAX) * step;
+    std::uniform_real_distribution<double> u(0, 1.0 / NUM_PARTICLES);
+    double r = u(rng);
     int idx = 0;
 
     for (int i = 0; i < NUM_PARTICLES; i++) {
-        double u = r + i * step;
-        while (u > cumulative[idx]) idx++;
-        Particle p = particles[idx];
-        p.weight = 1.0 / NUM_PARTICLES;
-        newSet.push_back(p);
+        double u_i = r + i * (1.0 / NUM_PARTICLES);
+        while (u_i > cumulative[idx]) idx++;
+        newSet.push_back(particles[idx]);
+        newSet.back().weight = 1.0 / NUM_PARTICLES;
     }
 
     particles = newSet;
@@ -263,11 +266,7 @@ void mcl_task(void *) {
         double heading = imu.get_heading() * M_PI / 180;
         double dtheta = heading - lastHeading;
 
-        bool pushing =
-            fabs(left_motor_group.get_actual_velocity(0)) < 5 &&
-            fabs(right_motor_group.get_actual_velocity(0)) < 5;
-
-        mcl_motion_update(dv, dh, dtheta, pushing);
+        mcl_motion_update(dv, dh, dtheta);
         mcl_sensor_update();
         mcl_resample();
         mcl_estimate();
@@ -287,13 +286,122 @@ void mcl_task(void *) {
     }
 }
 
-/* ===================== INIT ===================== */
+/* ===================== DRIVE EXPO CURVE ===================== */
+
+double exponential(int input) {
+    double norm = input / 127.0;
+    return pow(norm, 3) * 127.0;
+}
+
+/* ===================== ASYNC MECHANISMS ===================== */
+
+struct MechanismAction {
+    enum Type { MOTOR, DIGITAL } type;
+    pros::Motor* motor = nullptr;
+    pros::adi::DigitalOut* digital = nullptr;
+    int speed = 0;
+    int duration_ms = 0;
+};
+
+std::vector<MechanismAction> mechQueue;
+pros::Mutex mechMutex;
+
+void enqueueMotor(pros::Motor &motor, int speed, int duration_ms = 0) {
+    mechMutex.take();
+    mechQueue.push_back({MechanismAction::MOTOR, &motor, nullptr, speed, duration_ms});
+    mechMutex.give();
+}
+
+void enqueueDigital(pros::adi::DigitalOut &digital, bool value, int duration_ms = 0) {
+    mechMutex.take();
+    mechQueue.push_back({MechanismAction::DIGITAL, nullptr, &digital, value ? 1 : 0, duration_ms});
+    mechMutex.give();
+}
+
+void mechTask(void*) {
+    const int tick = 20;
+    std::vector<MechanismAction> active;
+
+    while (true) {
+        mechMutex.take();
+        for (auto &a : mechQueue) active.push_back(a);
+        mechQueue.clear();
+        mechMutex.give();
+
+        for (int i = active.size() - 1; i >= 0; i--) {
+            MechanismAction &a = active[i];
+            if (a.type == MechanismAction::MOTOR) a.motor->move(a.speed);
+            else if (a.type == MechanismAction::DIGITAL) a.digital->set_value(a.speed);
+
+            if (a.duration_ms > 0) {
+                a.duration_ms -= tick;
+                if (a.duration_ms <= 0) {
+                    if (a.type == MechanismAction::MOTOR) a.motor->move(0);
+                    else if (a.type == MechanismAction::DIGITAL) a.digital->set_value(0);
+                    active.erase(active.begin() + i);
+                }
+            }
+        }
+
+        pros::delay(tick);
+    }
+}
+
+/* ===================== INITIALIZE ===================== */
 
 void initialize() {
     pros::lcd::initialize();
     chassis.calibrate();
     pros::delay(500);
 
-    mcl_init(0, 0, 0);
+    mcl_init(12, 26, 0);
     pros::Task mclBackground(mcl_task, nullptr);
+    pros::Task mechBackground(mechTask, nullptr);
+}
+
+/* ===================== OP CONTROL ===================== */
+
+void opcontrol() {
+    while (true) {
+        int leftY = master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
+        int rightX = master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X) / 1.5;
+
+        double drive = exponential(leftY);
+        double turn = exponential(rightX);
+
+        left_motor_group.move(drive + turn);
+        right_motor_group.move(drive - turn);
+
+        // Intake & Hood
+        if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) enqueueMotor(intake_motor, 127);
+        else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)){
+            enqueueMotor(intake_motor, -127);
+            enqueueMotor(intake_hood_roller, -127);
+        } else enqueueMotor(intake_motor, 0);
+
+        if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L1)) enqueueMotor(intake_hood_roller, -127);
+        else enqueueMotor(intake_hood_roller, 0);
+
+        // Digital toggles
+        static bool lastA = false, lastL2 = false, lastB = false;
+
+        bool currentA = master.get_digital(pros::E_CONTROLLER_DIGITAL_A);
+        if(currentA && !lastA) tounge = !tounge;
+        lastA = currentA;
+        enqueueDigital(rTongue, tounge);
+
+        bool currentL2 = master.get_digital(pros::E_CONTROLLER_DIGITAL_L2);
+        if(currentL2 && !lastL2) midgoal = !midgoal;
+        lastL2 = currentL2;
+        enqueueDigital(midGoal, midgoal);
+
+        bool currentB = master.get_digital(pros::E_CONTROLLER_DIGITAL_B);
+        if(currentB && !lastB) hood = !hood;
+        lastB = currentB;
+        enqueueDigital(hoodPiston, hood);
+
+        pros::lcd::print(4, "MCL X: %.1f Y: %.1f H: %.1f", mcl_x, mcl_y, mcl_h * 180 / M_PI);
+
+        pros::delay(20);
+    }
 }
