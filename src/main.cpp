@@ -66,11 +66,11 @@ lemlib::OdomSensors sensors(
 
 // PID tuning
 lemlib::ControllerSettings lateral_controller(
-    5.7, 0, 27, 0, 0, 0, 0, 0, 0
+    5.7, 0, 27, 3, 1, 100, 3, 500, 20
 );
 
 lemlib::ControllerSettings angular_controller(
-    4.05, 0.0001 , 35, 0, 0, 0, 0, 0, 0
+    4.05, 0.0001 , 35, 3, 1, 100, 3, 500, 0
 );
 
 // Chassis
@@ -271,13 +271,14 @@ void autonomous() {
     pros::lcd::set_text(1, "Running Autonomous");
     chassis.setPose(0, 0, 0);
 
-    int autonSelector = 3;
+    int autonSelector = 2;
 
     switch (autonSelector) {
         case 0:
             pros::lcd::set_text(2, "Auton 0 selected");
-            chassis.moveToPoint(0,24, 4000);
-            chassis.waitUntilDone();
+            intake_motor.move(127);
+            pros::delay(500);
+            intake_motor.move(0); 
             break;
 
         case 1:
@@ -305,8 +306,13 @@ void autonomous() {
             intake_motor.move(127);
             rTongue.set_value(true);
             pros::delay(2000);
+<<<<<<< HEAD
 
             chassis.moveToPoint(-50, 0, 1500,{.maxSpeed=70});
+=======
+           
+            chassis.moveToPoint(-50, 0, 1500,{.maxSpeed=60});
+>>>>>>> 3a983c57e7781368016fbb0da9bc01a36591dd4c
             chassis.waitUntil(5);
             intake_hood_roller.move(0);
             chassis.waitUntilDone();
@@ -331,38 +337,45 @@ void autonomous() {
 
         case 2:
             chassis.setPose(12,26,0);
-            chassis.moveToPoint(27, 50, 1700, {.maxSpeed=50});
+            chassis.moveToPoint(25, 52, 1500, {.maxSpeed=50, .earlyExitRange = 10});
             intake_motor.move(127);
-            pros::delay(50);
-            intake_motor.move(-127);
-            pros::delay(50);
-            intake_motor.move(127);
+            //pros::delay(20);
+            //intake_motor.move(-127);
+            //pros::delay(20);
+            //intake_motor.move(127);
+            pros::delay(1500);
             chassis.waitUntilDone();
-            chassis.turnToPoint(52,20 , 1000);
-            chassis.moveToPoint(52, 20, 1500);
-            chassis.waitUntil(12);
+            chassis.turnToPoint(52, 20, 500);
+            chassis.waitUntilDone();
+            chassis.moveToPoint(52, 20, 1000);
+            pros::delay(1000);
             intake_motor.move(0);
             chassis.turnToHeading(180, 1000);
-            chassis.moveToPoint(50,42, 1000, {.forwards = false});
-            chassis.waitUntil(5);
+            chassis.moveToPoint(46,42, 1000, {.forwards = false});
+            chassis.waitUntilDone();
             intake_motor.move(127);
             intake_hood_roller.move(-127);
-            intake_motor.move(127);
-            pros::delay(50);
-            intake_motor.move(-127);
-            pros::delay(50);
-            intake_motor.move(127);
+            pros::delay(200);
             rTongue.set_value(true);
+<<<<<<< HEAD
             pros::delay(2000);
 
             chassis.moveToPoint(50, 0, 1500,{.maxSpeed=70});
+=======
+            pros::delay(1700);
+
+            chassis.moveToPoint(46, -3, 500, {.maxSpeed=60});
+>>>>>>> 3a983c57e7781368016fbb0da9bc01a36591dd4c
             chassis.waitUntil(5);
             intake_hood_roller.move(0);
-            chassis.waitUntilDone();
+            //chassis.waitUntilDone();
+            //chassis.moveToPoint(46, 2, 500);
+            chassis.turnToHeading(180, 500);
+            pros::delay(200);
+            chassis.moveToPoint(46, -10,  1000, {.minSpeed=80});
             pros::delay(2000);
-            chassis.moveToPoint(50,24, 1000, {.forwards = false});
-            chassis.turnToHeading(180, 1000);
-            chassis.moveToPoint(50, 42, 1000, {.forwards = false});
+            chassis.moveToPoint(46, 24, 700, {.forwards = false});
+            chassis.moveToPoint(46, 42, 700, {.forwards = false});
             rTongue.set_value(false);
             chassis.waitUntilDone();
             intake_motor.move(127);
@@ -371,12 +384,13 @@ void autonomous() {
             pros::delay(50);
             intake_motor.move(127);
             intake_hood_roller.move(-127);
-            pros::delay(2000);
+            pros::delay(1500);
             intake_hood_roller.move(0);
             intake_motor.move(0);
-            chassis.moveToPoint(50, 30, 1000);
-            chassis.moveToPoint(50, 42, 1000, {.forwards= false});
+            chassis.moveToPoint(46, 30, 500);
+            chassis.moveToPoint(46, 42, 400, {.forwards= false});
             break;
+<<<<<<< HEAD
 
         case 3:
             chassis.turnToHeading(90, 4000);
@@ -384,6 +398,12 @@ void autonomous() {
             pros::delay(500);
             intake_motor.move(0);
             break;
+=======
+           
+            case 3:
+            chassis.moveToPoint(0,24, 4000);
+
+>>>>>>> 3a983c57e7781368016fbb0da9bc01a36591dd4c
 
         case 4:
             pros::lcd::set_text(2, "Case 4 With MCL");
