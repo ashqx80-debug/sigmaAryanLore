@@ -1,7 +1,5 @@
 #include "main.h"
 #include "lemlib/api.hpp"
-#include "lemlib/chassis/chassis.hpp"
-#include "lemlib/chassis/trackingWheel.hpp"
 #include "pros/adi.hpp"
 #include "pros/misc.h"
 #include "pros/motors.h"
@@ -9,8 +7,7 @@
 #include <vector>
 #include <random>
 #include <cmath>
-
-/* ===================== HARDWARE ===================== */
+#include <algorithm>
 
 pros::Motor intake_motor(19, pros::MotorGears::blue);
 pros::Motor intake_hood_roller(11, pros::MotorGears::blue);
@@ -21,387 +18,412 @@ pros::adi::DigitalOut midGoal('D');
 
 pros::Controller master(pros::E_CONTROLLER_MASTER);
 
-pros::MotorGroup left_motor_group({-1, 3, -2}, pros::MotorGears::blue);
-pros::MotorGroup right_motor_group({-6, 5, 4}, pros::MotorGears::blue);
+pros::MotorGroup left_drive({-1, 3, -2}, pros::MotorGears::blue);
+pros::MotorGroup right_drive({-6, 5, 4}, pros::MotorGears::blue);
 
-bool tounge = false;
-bool midgoal = false;
+bool tongue = false;
 bool hood = false;
-
-/* ===================== DRIVETRAIN ===================== */
+bool midgoal = false;
 
 lemlib::Drivetrain drivetrain(
-    &left_motor_group,
-    &right_motor_group,
+    &left_drive,
+    &right_drive,
     11,
     lemlib::Omniwheel::NEW_325,
     450,
     2
 );
 
-/* ===================== SENSORS ===================== */
-
 pros::Imu imu(10);
-pros::Rotation horizontal_encoder(21);
-pros::Rotation vertical_encoder(-13);
+pros::Rotation enc_vertical(21);
+pros::Rotation enc_horizontal(-13);
 
-lemlib::TrackingWheel horizontal_tracking_wheel(&horizontal_encoder, lemlib::Omniwheel::NEW_2, -5.75);
-lemlib::TrackingWheel vertical_tracking_wheel(&vertical_encoder, lemlib::Omniwheel::NEW_275, -0.25);
+lemlib::TrackingWheel vertTW(&enc_vertical, lemlib::Omniwheel::NEW_275, -0.25);
+lemlib::TrackingWheel horzTW(&enc_horizontal, lemlib::Omniwheel::NEW_2, -5.75);
 
-lemlib::OdomSensors sensors(&vertical_tracking_wheel, nullptr, &horizontal_tracking_wheel, nullptr, &imu);
+lemlib::OdomSensors odomSensors(
+    &vertTW, nullptr,
+    &horzTW, nullptr,
+    &imu
+);
 
-/* ===================== CONTROLLERS ===================== */
+lemlib::ControllerSettings lateral(5.7, 0, 27, 3, 1, 100, 3, 500, 20);
+lemlib::ControllerSettings angular(4.05, 0.0001, 35, 3, 1, 100, 3, 500, 0);
 
-lemlib::ControllerSettings lateral_controller(5.7, 0, 27, 3, 1, 100, 3, 500, 20);
-lemlib::ControllerSettings angular_controller(4.05, 0.0001, 35, 3, 1, 100, 3, 500, 0);
-
-lemlib::Chassis chassis(drivetrain, lateral_controller, angular_controller, sensors);
-
-/* ===================== DISTANCE SENSORS ===================== */
+lemlib::Chassis chassis(drivetrain, lateral, angular, odomSensors);
 
 pros::Distance distLeft(7);
 pros::Distance distRight(8);
 pros::Distance distFront(9);
+pros::Distance distBack(6);
 
-/* ===================== FIELD ===================== */
-
-constexpr double FIELD_X_MIN = -72;
-constexpr double FIELD_X_MAX =  72;
-constexpr double FIELD_Y_MIN = -72;
-constexpr double FIELD_Y_MAX =  72;
-
-/* ===================== MCL PARAMETERS ===================== */
+constexpr double FIELD_MIN = -72;
+constexpr double FIELD_MAX = 72;
 
 constexpr int NUM_PARTICLES = 300;
-constexpr double SENSOR_STD_DEV = 2.0;
-constexpr double BASE_LINEAR_NOISE = 0.25;
-constexpr double BASE_ANG_NOISE = 1.0 * (M_PI / 180);
-
-/* ===================== PARTICLES ===================== */
+constexpr double SENSOR_STDDEV = 2.0;
+constexpr double LIN_NOISE = 0.3;
+constexpr double ANG_NOISE = 1.0 * (M_PI / 180);
 
 struct Particle {
     double x;
     double y;
-    double heading;
-    double weight;
+    double h;
+    double w;
 };
 
 std::vector<Particle> particles;
 
-/* ===================== RANDOM ===================== */
-
 std::default_random_engine rng(pros::millis());
-std::normal_distribution<double> lin_noise(0, BASE_LINEAR_NOISE);
-std::normal_distribution<double> ang_noise(0, BASE_ANG_NOISE);
+std::normal_distribution<double> linNoise(0, LIN_NOISE);
+std::normal_distribution<double> angNoise(0, ANG_NOISE);
 
-/* ===================== MCL OUTPUT ===================== */
+double estX = 0;
+double estY = 0;
+double estH = 0;
 
-double mcl_x = 0;
-double mcl_y = 0;
-double mcl_h = 0;
+double eLeft(const Particle& p) { return p.x - FIELD_MIN; }
+double eRight(const Particle& p) { return FIELD_MAX - p.x; }
+double eFront(const Particle& p) { return FIELD_MAX - p.y; }
+double eBack(const Particle& p) { return p.y - FIELD_MIN; }
 
-/* ===================== SCREEN MAPPING ===================== */
-
-int fieldToScreenX(double x) {
-    return (int)((x - FIELD_X_MIN) / (FIELD_X_MAX - FIELD_X_MIN) * 480);
-}
-
-int fieldToScreenY(double y) {
-    return (int)(240 - (y - FIELD_Y_MIN) / (FIELD_Y_MAX - FIELD_Y_MIN) * 240);
-}
-
-/* ===================== PARTICLE DRAW ===================== */
-
-void drawParticles() {
-    pros::screen::erase();
-
-    pros::screen::set_pen(0xAAAAAA);
-    for (auto &p : particles) {
-        int sx = fieldToScreenX(p.x);
-        int sy = fieldToScreenY(p.y);
-        if (sx >= 0 && sx < 480 && sy >= 0 && sy < 240)
-            pros::screen::draw_pixel(sx, sy);
-    }
-
-    int mx = fieldToScreenX(mcl_x);
-    int my = fieldToScreenY(mcl_y);
-    pros::screen::set_pen(0xFF0000);
-    pros::screen::fill_circle(mx, my, 3);
-
-    int hx = mx + 12 * cos(mcl_h);
-    int hy = my - 12 * sin(mcl_h);
-    pros::screen::draw_line(mx, my, hx, hy);
-}
-
-/* ===================== MCL INIT ===================== */
-
-void mcl_init(double x, double y, double h) {
+void mclInit(double x, double y, double h) {
     particles.clear();
     particles.reserve(NUM_PARTICLES);
-
-    vertical_encoder.reset_position();
-    horizontal_encoder.reset_position();
+    enc_vertical.reset_position();
+    enc_horizontal.reset_position();
     imu.tare_heading();
-
     for (int i = 0; i < NUM_PARTICLES; i++) {
         particles.push_back({
-            x + lin_noise(rng) * 2.0,
-            y + lin_noise(rng) * 2.0,
-            h + ang_noise(rng) * 2.0,
+            x + linNoise(rng) * 2,
+            y + linNoise(rng) * 2,
+            h + angNoise(rng) * 2,
             1.0 / NUM_PARTICLES
         });
     }
-
-    chassis.setPose(x, y, h * 180.0 / M_PI);
+    chassis.setPose(x, y, h * 180 / M_PI);
 }
 
-/* ===================== MOTION MODEL ===================== */
-
-void mcl_motion_update(double forward, double sideways, double dtheta) {
-    bool pushing =
-        fabs(left_motor_group.get_actual_velocity(0)) < 5 &&
-        fabs(right_motor_group.get_actual_velocity(0)) < 5;
-
-    double linScale = pushing ? 3.0 : 1.0;
-    double angScale = pushing ? 2.0 : 1.0;
-
+void mclMotion(double fwd, double str, double dtheta) {
     for (auto &p : particles) {
-        double f = forward + lin_noise(rng) * linScale;
-        double s = sideways + lin_noise(rng) * linScale;
-        double dt = dtheta + ang_noise(rng) * angScale;
-
-        p.heading += dt;
-        if (p.heading > M_PI) p.heading -= 2 * M_PI;
-        if (p.heading < -M_PI) p.heading += 2 * M_PI;
-
-        p.x += f * cos(p.heading) - s * sin(p.heading);
-        p.y += f * sin(p.heading) + s * cos(p.heading);
+        double f = fwd + linNoise(rng);
+        double s = str + linNoise(rng);
+        double dt = dtheta + angNoise(rng);
+        p.h = atan2(sin(p.h + dt), cos(p.h + dt));
+        p.x += f * cos(p.h) - s * sin(p.h);
+        p.y += f * sin(p.h) + s * cos(p.h);
+        p.x = std::clamp(p.x, FIELD_MIN, FIELD_MAX);
+        p.y = std::clamp(p.y, FIELD_MIN, FIELD_MAX);
     }
 }
 
-/* ===================== SENSOR MODEL ===================== */
-
-double expected_left(const Particle &p)  { return p.x - FIELD_X_MIN; }
-double expected_right(const Particle &p) { return FIELD_X_MAX - p.x; }
-double expected_front(const Particle &p) { return FIELD_Y_MAX - p.y; }
-
-void mcl_sensor_update() {
+void mclSensor() {
     double dl = distLeft.get_distance() / 25.4;
     double dr = distRight.get_distance() / 25.4;
     double df = distFront.get_distance() / 25.4;
-
-    if (dl < 1 || dr < 1 || df < 1) return;
-
+    double db = distBack.get_distance() / 25.4;
+    if (dl < 2 || dr < 2 || df < 2 || db < 2) return;
+    if (dl > 70 || dr > 70 || df > 70 || db > 70) return;
+    double var = SENSOR_STDDEV * SENSOR_STDDEV;
     double sum = 0;
     for (auto &p : particles) {
-        p.weight =
-            exp(-pow(dl - expected_left(p), 2) / (2 * SENSOR_STD_DEV * SENSOR_STD_DEV)) *
-            exp(-pow(dr - expected_right(p), 2) / (2 * SENSOR_STD_DEV * SENSOR_STD_DEV)) *
-            exp(-pow(df - expected_front(p), 2) / (2 * SENSOR_STD_DEV * SENSOR_STD_DEV));
-        sum += p.weight;
+        p.w =
+            exp(-pow(dl - eLeft(p), 2) / (2 * var)) *
+            exp(-pow(dr - eRight(p), 2) / (2 * var)) *
+            exp(-pow(df - eFront(p), 2) / (2 * var)) *
+            exp(-pow(db - eBack(p), 2) / (2 * var));
+        sum += p.w;
     }
-
-    if(sum == 0) return;
-
-    for (auto &p : particles)
-        p.weight /= sum;
+    if (sum == 0) return;
+    for (auto &p : particles) p.w /= sum;
 }
 
-/* ===================== RESAMPLE ===================== */
-
-void mcl_resample() {
-    std::vector<Particle> newSet;
-    newSet.reserve(NUM_PARTICLES);
-
-    std::vector<double> cumulative(NUM_PARTICLES);
-    cumulative[0] = particles[0].weight;
+void mclResample() {
+    std::vector<Particle> next;
+    next.reserve(NUM_PARTICLES);
+    std::vector<double> cdf(NUM_PARTICLES);
+    cdf[0] = particles[0].w;
     for (int i = 1; i < NUM_PARTICLES; i++)
-        cumulative[i] = cumulative[i - 1] + particles[i].weight;
-
+        cdf[i] = cdf[i - 1] + particles[i].w;
     std::uniform_real_distribution<double> u(0, 1.0 / NUM_PARTICLES);
     double r = u(rng);
-    int idx = 0;
-
-    for (int i = 0; i < NUM_PARTICLES; i++) {
-        double u_i = r + i * (1.0 / NUM_PARTICLES);
-        while (u_i > cumulative[idx]) idx++;
-        newSet.push_back(particles[idx]);
-        newSet.back().weight = 1.0 / NUM_PARTICLES;
+    int i = 0;
+    for (int m = 0; m < NUM_PARTICLES; m++) {
+        double U = r + m * (1.0 / NUM_PARTICLES);
+        while (U > cdf[i]) i++;
+        next.push_back(particles[i]);
+        next.back().w = 1.0 / NUM_PARTICLES;
     }
-
-    particles = newSet;
+    particles = next;
 }
 
-/* ===================== ESTIMATE ===================== */
-
-void mcl_estimate() {
-    double x = 0, y = 0, s = 0, c = 0;
+void mclEstimate() {
+    double sx = 0, sy = 0, sc = 0, ss = 0;
     for (auto &p : particles) {
-        x += p.x;
-        y += p.y;
-        s += sin(p.heading);
-        c += cos(p.heading);
+        sx += p.x;
+        sy += p.y;
+        sc += cos(p.h);
+        ss += sin(p.h);
     }
-    mcl_x = x / NUM_PARTICLES;
-    mcl_y = y / NUM_PARTICLES;
-    mcl_h = atan2(s, c);
+    estX = sx / NUM_PARTICLES;
+    estY = sy / NUM_PARTICLES;
+    estH = atan2(ss, sc);
 }
 
-/* ===================== MCL TASK ===================== */
-
-void mcl_task(void *) {
-    double lastV = vertical_encoder.get_position();
-    double lastH = horizontal_encoder.get_position();
+void mclTask(void*) {
+    double lastV = enc_vertical.get_position();
+    double lastH = enc_horizontal.get_position();
     double lastHeading = imu.get_heading() * M_PI / 180;
-
-    int drawCounter = 0;
-
     while (true) {
-        double v = vertical_encoder.get_position();
-        double h = horizontal_encoder.get_position();
-
-        double dv = (v - lastV) / 100.0;
-        double dh = (h - lastH) / 100.0;
-
+        double v = enc_vertical.get_position();
+        double h = enc_horizontal.get_position();
         double heading = imu.get_heading() * M_PI / 180;
-        double dtheta = heading - lastHeading;
-
-        mcl_motion_update(dv, dh, dtheta);
-        mcl_sensor_update();
-        mcl_resample();
-        mcl_estimate();
-
-        chassis.setPose(mcl_x, mcl_y, mcl_h * 180.0 / M_PI);
-
-        if (++drawCounter >= 5) {
-            drawParticles();
-            drawCounter = 0;
-        }
-
+        mclMotion(
+            (v - lastV) / 100.0,
+            (h - lastH) / 100.0,
+            heading - lastHeading
+        );
+        mclSensor();
+        mclResample();
+        mclEstimate();
+        chassis.setPose(estX, estY, estH * 180 / M_PI);
         lastV = v;
         lastH = h;
         lastHeading = heading;
-
         pros::delay(20);
     }
 }
 
-/* ===================== DRIVE EXPO CURVE ===================== */
-
-double exponential(int input) {
-    double norm = input / 127.0;
-    return pow(norm, 3) * 127.0;
-}
-
-/* ===================== ASYNC MECHANISMS ===================== */
-
-struct MechanismAction {
+struct MechAction {
     enum Type { MOTOR, DIGITAL } type;
-    pros::Motor* motor = nullptr;
-    pros::adi::DigitalOut* digital = nullptr;
-    int speed = 0;
-    int duration_ms = 0;
+    pros::Motor* motor;
+    pros::adi::DigitalOut* digital;
+    int value;
+    int time;
 };
 
-std::vector<MechanismAction> mechQueue;
+std::vector<MechAction> mechQueue;
 pros::Mutex mechMutex;
 
-void enqueueMotor(pros::Motor &motor, int speed, int duration_ms = 0) {
+void enqueueMotor(pros::Motor& m, int v, int t = 0) {
     mechMutex.take();
-    mechQueue.push_back({MechanismAction::MOTOR, &motor, nullptr, speed, duration_ms});
+    mechQueue.push_back({MechAction::MOTOR, &m, nullptr, v, t});
     mechMutex.give();
 }
 
-void enqueueDigital(pros::adi::DigitalOut &digital, bool value, int duration_ms = 0) {
+void enqueueDigital(pros::adi::DigitalOut& d, bool v, int t = 0) {
     mechMutex.take();
-    mechQueue.push_back({MechanismAction::DIGITAL, nullptr, &digital, value ? 1 : 0, duration_ms});
+    mechQueue.push_back({MechAction::DIGITAL, nullptr, &d, v ? 1 : 0, t});
     mechMutex.give();
 }
 
 void mechTask(void*) {
-    const int tick = 20;
-    std::vector<MechanismAction> active;
-
+    const int dt = 20;
+    std::vector<MechAction> active;
     while (true) {
         mechMutex.take();
         for (auto &a : mechQueue) active.push_back(a);
         mechQueue.clear();
         mechMutex.give();
-
         for (int i = active.size() - 1; i >= 0; i--) {
-            MechanismAction &a = active[i];
-            if (a.type == MechanismAction::MOTOR) a.motor->move(a.speed);
-            else if (a.type == MechanismAction::DIGITAL) a.digital->set_value(a.speed);
-
-            if (a.duration_ms > 0) {
-                a.duration_ms -= tick;
-                if (a.duration_ms <= 0) {
-                    if (a.type == MechanismAction::MOTOR) a.motor->move(0);
-                    else if (a.type == MechanismAction::DIGITAL) a.digital->set_value(0);
+            auto &a = active[i];
+            if (a.type == MechAction::MOTOR) a.motor->move(a.value);
+            else a.digital->set_value(a.value);
+            if (a.time > 0) {
+                a.time -= dt;
+                if (a.time <= 0) {
+                    if (a.type == MechAction::MOTOR) a.motor->move(0);
+                    else a.digital->set_value(0);
                     active.erase(active.begin() + i);
                 }
             }
         }
-
-        pros::delay(tick);
+        pros::delay(dt);
     }
 }
 
-/* ===================== INITIALIZE ===================== */
+void autonomous() {
+    int autonSelector = 2;
+
+    chassis.setPose(estX, estY, estH * 180 / M_PI);
+
+    switch (autonSelector) {
+
+        case 0:
+            pros::lcd::set_text(2, "Auton 0 selected");
+            intake_motor.move(127);
+            pros::delay(500);
+            intake_motor.move(0);
+            break;
+
+        case 1:
+            chassis.moveToPoint(-27, 50, 1700, {.maxSpeed = 50});
+            intake_motor.move(127);
+            pros::delay(50);
+            intake_motor.move(-127);
+            pros::delay(50);
+            intake_motor.move(127);
+            chassis.waitUntilDone();
+
+            chassis.turnToPoint(-52, 20, 1000);
+            chassis.moveToPoint(-52, 20, 1500);
+            chassis.waitUntil(12);
+            intake_motor.move(0);
+
+            chassis.turnToHeading(180, 1000);
+            chassis.moveToPoint(-50, 42, 1000, {.forwards = false});
+            chassis.waitUntil(5);
+
+            intake_motor.move(127);
+            intake_hood_roller.move(-127);
+            pros::delay(50);
+            intake_motor.move(-127);
+            pros::delay(50);
+            intake_motor.move(127);
+
+            rTongue.set_value(true);
+            pros::delay(2000);
+
+            chassis.moveToPoint(-50, 0, 1500, {.maxSpeed = 60});
+            chassis.waitUntil(5);
+            intake_hood_roller.move(0);
+            chassis.waitUntilDone();
+
+            pros::delay(2000);
+
+            chassis.moveToPoint(-50, 24, 1000, {.forwards = false});
+            chassis.turnToHeading(180, 1000);
+            chassis.moveToPoint(-50, 42, 1000, {.forwards = false});
+            rTongue.set_value(false);
+            chassis.waitUntilDone();
+
+            intake_motor.move(127);
+            pros::delay(50);
+            intake_motor.move(-127);
+            pros::delay(50);
+            intake_motor.move(127);
+
+            intake_hood_roller.move(-127);
+            pros::delay(2000);
+
+            intake_hood_roller.move(0);
+            intake_motor.move(0);
+
+            chassis.moveToPoint(-50, 30, 1000);
+            chassis.moveToPoint(-50, 42, 1000, {.forwards = false});
+            break;
+
+        case 2:
+            chassis.moveToPoint(25, 52, 1500, {.maxSpeed = 50, .earlyExitRange = 10});
+            intake_motor.move(127);
+            pros::delay(1500);
+            chassis.waitUntilDone();
+
+            chassis.turnToPoint(52, 20, 500);
+            chassis.waitUntilDone();
+            chassis.moveToPoint(52, 20, 1000);
+
+            pros::delay(1000);
+            intake_motor.move(0);
+
+            chassis.turnToHeading(180, 1000);
+            chassis.moveToPoint(46, 42, 1000, {.forwards = false});
+            chassis.waitUntilDone();
+
+            intake_motor.move(127);
+            intake_hood_roller.move(-127);
+            pros::delay(200);
+
+            rTongue.set_value(true);
+            pros::delay(1700);
+
+            chassis.moveToPoint(46, -3, 500, {.maxSpeed = 60});
+            chassis.waitUntil(5);
+            intake_hood_roller.move(0);
+
+            chassis.turnToHeading(180, 500);
+            pros::delay(200);
+
+            chassis.moveToPoint(46, -10, 1000, {.minSpeed = 80});
+            pros::delay(2000);
+
+            chassis.moveToPoint(46, 24, 700, {.forwards = false});
+            chassis.moveToPoint(46, 42, 700, {.forwards = false});
+
+            rTongue.set_value(false);
+            chassis.waitUntilDone();
+
+            intake_motor.move(127);
+            pros::delay(50);
+            intake_motor.move(-127);
+            pros::delay(50);
+            intake_motor.move(127);
+
+            intake_hood_roller.move(-127);
+            pros::delay(1500);
+
+            intake_hood_roller.move(0);
+            intake_motor.move(0);
+
+            chassis.moveToPoint(46, 30, 500);
+            chassis.moveToPoint(46, 42, 400, {.forwards = false});
+            break;
+
+        case 3:
+            chassis.moveToPoint(0, 24, 4000);
+            break;
+    }
+}
+
 
 void initialize() {
     pros::lcd::initialize();
     chassis.calibrate();
     pros::delay(500);
-
-    mcl_init(12, 26, 0);
-    pros::Task mclBackground(mcl_task, nullptr);
+    mclInit(0, 0, 0);
+    pros::Task mclBackground(mclTask, nullptr);
     pros::Task mechBackground(mechTask, nullptr);
 }
 
-/* ===================== OP CONTROL ===================== */
+double expo(int v) {
+    double n = v / 127.0;
+    return n * n * n * 127;
+}
 
 void opcontrol() {
+    static bool lastA = false;
+    static bool lastB = false;
+    static bool lastL2 = false;
     while (true) {
-        int leftY = master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
-        int rightX = master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X) / 1.5;
-
-        double drive = exponential(leftY);
-        double turn = exponential(rightX);
-
-        left_motor_group.move(drive + turn);
-        right_motor_group.move(drive - turn);
-
-        // Intake & Hood
-        if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) enqueueMotor(intake_motor, 127);
+        int drive = expo(master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y));
+        int turn = expo(master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X));
+        left_drive.move(drive + turn);
+        right_drive.move(drive - turn);
+        if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1))
+            enqueueMotor(intake_motor, 127);
         else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)){
-            enqueueMotor(intake_motor, -127);
+            enqueueMotor(intake_motor, 127);
             enqueueMotor(intake_hood_roller, -127);
-        } else enqueueMotor(intake_motor, 0);
-
-        if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L1)) enqueueMotor(intake_hood_roller, -127);
-        else enqueueMotor(intake_hood_roller, 0);
-
-        // Digital toggles
-        static bool lastA = false, lastL2 = false, lastB = false;
-
-        bool currentA = master.get_digital(pros::E_CONTROLLER_DIGITAL_A);
-        if(currentA && !lastA) tounge = !tounge;
-        lastA = currentA;
-        enqueueDigital(rTongue, tounge);
-
-        bool currentL2 = master.get_digital(pros::E_CONTROLLER_DIGITAL_L2);
-        if(currentL2 && !lastL2) midgoal = !midgoal;
-        lastL2 = currentL2;
-        enqueueDigital(midGoal, midgoal);
-
-        bool currentB = master.get_digital(pros::E_CONTROLLER_DIGITAL_B);
-        if(currentB && !lastB) hood = !hood;
-        lastB = currentB;
+        }
+        else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L1)){
+            enqueueMotor(intake_motor, -127);
+            enqueueMotor(intake_hood_roller, 127);
+        }
+        else
+            enqueueMotor(intake_motor, 0);
+        bool a = master.get_digital(pros::E_CONTROLLER_DIGITAL_A);
+        if (a && !lastA) tongue = !tongue;
+        lastA = a;
+        enqueueDigital(rTongue, tongue);
+        bool b = master.get_digital(pros::E_CONTROLLER_DIGITAL_B);
+        if (b && !lastB) hood = !hood;
+        lastB = b;
         enqueueDigital(hoodPiston, hood);
-
-        pros::lcd::print(4, "MCL X: %.1f Y: %.1f H: %.1f", mcl_x, mcl_y, mcl_h * 180 / M_PI);
-
+        bool l2 = master.get_digital(pros::E_CONTROLLER_DIGITAL_L2);
+        if (l2 && !lastL2) midgoal = !midgoal;
+        lastL2 = l2;
+        enqueueDigital(midGoal, midgoal);
+        pros::lcd::print(0, "X %.1f Y %.1f H %.1f", estX, estY, estH * 180 / M_PI);
         pros::delay(20);
     }
 }
