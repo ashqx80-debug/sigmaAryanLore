@@ -1,6 +1,9 @@
+#include <cmath>
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 #define ENABLE_MCL 0
 #define MCL_OVERRIDE_CHASSIS 0
-
 #include "main.h"
 #include "lemlib/api.hpp"
 #include "pros/adi.hpp"
@@ -8,7 +11,6 @@
 #include "pros/rtos.hpp"
 #include <vector>
 #include <random>
-#include <cmath>
 #include <algorithm>
 
 pros::Motor intake_motor(19, pros::MotorGears::blue);
@@ -269,7 +271,7 @@ struct MechAction
     int time;
 };
 
-std::vector<MechAction> mechQueue;
+std::vector<MechAction> mechQueue; 
 pros::Mutex mechMutex;
 
 void enqueueMotor(pros::Motor &m, int v, int t = 0)
@@ -402,67 +404,57 @@ void autonomous()
        
 }
 
-void opcontrol()
-{
+void opcontrol() {
     static bool lastA = false;
     static bool lastB = false;
     static bool lastL2 = false;
 
-    while (true)
-    {
+    while (true) {
+
         int drive = expo(master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y));
-        int turn = expo(master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X));
+        int turn  = expo(master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X));
 
         left_drive.move(drive + turn);
         right_drive.move(drive - turn);
 
-        if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1))
-        {
-            enqueueMotor(intake_motor, 127);
-        }
-        else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R2))
-        {
-            enqueueMotor(intake_motor, 127);
-            enqueueMotor(intake_hood_roller, -127);
-        }
-        else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L1))
-        {
-            enqueueMotor(intake_motor, -127);
-            enqueueMotor(intake_hood_roller, 127);
-        }
-        else
-        {
-            enqueueMotor(intake_motor, 0);
-        }
 
-        bool a = master.get_digital(pros::E_CONTROLLER_DIGITAL_A);
-        if (a && !lastA)
-        {
-            tongue = !tongue;
+        if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
+            intake_motor.move(127);
+            intake_hood_roller.move(0);
         }
+        else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
+            intake_motor.move(127);
+            intake_hood_roller.move(-127);
+        }
+        else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L1)) {
+            intake_motor.move(-127);
+            intake_hood_roller.move(127);
+        }
+        else {
+            intake_motor.move(0);
+            intake_hood_roller.move(0);
+        }
+        bool a = master.get_digital(pros::E_CONTROLLER_DIGITAL_A);
+        if (a && !lastA) tongue = !tongue;
         lastA = a;
-        enqueueDigital(rTongue, tongue);
+        rTongue.set_value(tongue);
 
         bool b = master.get_digital(pros::E_CONTROLLER_DIGITAL_B);
-        if (b && !lastB)
-        {
-            hood = !hood;
-        }
+        if (b && !lastB) hood = !hood;
         lastB = b;
-        enqueueDigital(hoodPiston, hood);
+        hoodPiston.set_value(hood);
 
         bool l2 = master.get_digital(pros::E_CONTROLLER_DIGITAL_L2);
-        if (l2 && !lastL2)
-        {
-            midgoal = !midgoal;
-        }
+        if (l2 && !lastL2) midgoal = !midgoal;
         lastL2 = l2;
-        enqueueDigital(midGoal, midgoal);
+        midGoal.set_value(midgoal);
+        pros::lcd::print(0, "X %.1f Y %.1f H %.1f",
+                         estX, estY, estH * 180 / M_PI);
 
-        pros::lcd::print(0, "X %.1f Y %.1f H %.1f", estX, estY, estH * 180 / M_PI);
         pros::delay(20);
     }
 }
+
 
 void initialize()
 {
@@ -477,4 +469,6 @@ void initialize()
     }
 
     pros::Task(mechTask, nullptr);
+}
+
 }
