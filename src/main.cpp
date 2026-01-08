@@ -358,7 +358,7 @@ double expo(double normalizedInput) {
 
 void autonomous()
 {
-    int autonSelector = 2;
+    int autonSelector = 3;
     chassis.setPose(estX, estY, estH * 180 / M_PI);
     switch (autonSelector) {
         case 1:
@@ -430,8 +430,29 @@ void autonomous()
             chassis.moveToPoint(46, 30, 500);
             chassis.moveToPoint(46, 42, 400, {.forwards = false});
             chassis.waitUntilDone();
+            break;
 
-    break;
+        case 3:
+            chassis.turnToHeading(90, 1000);
+            chassis.waitUntilDone();
+            pros::delay(200);
+            chassis.turnToHeading(-90, 1000);
+            chassis.waitUntilDone();
+            pros::delay(200);
+            chassis.turnToHeading(0, 1000);
+            chassis.waitUntilDone();
+            pros::delay(200);
+            chassis.turnToHeading(-180, 1000);
+            chassis.waitUntilDone();
+            pros::delay(200);
+            chassis.turnToHeading(180, 1000);
+            chassis.waitUntilDone();
+            pros::delay(200);
+            chassis.turnToHeading(0, 1000);
+            chassis.waitUntilDone();
+            pros::delay(200);
+        break;
+
 
     }
        
