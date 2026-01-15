@@ -42,7 +42,7 @@ lemlib::TrackingWheel horzTW(&enc_horizontal, lemlib::Omniwheel::NEW_2, -5.75);
 lemlib::OdomSensors odomSensors(&vertTW, nullptr, &horzTW, nullptr, &imu);
 
 lemlib::ControllerSettings lateral(6, 0.0001, 2.6, 0, 0, 0, 0, 0, 0);
-lemlib::ControllerSettings angular(2.45, 0.0001, 22.5, 0, 0, 0, 0, 0, 100);
+lemlib::ControllerSettings angular(2.45, 0.0001, 22.5, 3, 1, 100, 3, 500, 90);
 
 lemlib::Chassis chassis(drivetrain, lateral, angular, odomSensors);
 
@@ -383,9 +383,6 @@ void autonomous()
             chassis.moveToPoint(-27, 50, 1700, {.maxSpeed=50});
             intake_motor.move(127);
             pros::delay(50);
-            intake_motor.move(-127);
-            pros::delay(50);
-            intake_motor.move(127);
             chassis.waitUntilDone();
             chassis.turnToPoint(-52,20, 1000);
             chassis.moveToPoint(-52, 20, 1500);
@@ -393,39 +390,30 @@ void autonomous()
             intake_motor.move(0);
             chassis.turnToHeading(180, 1000);
             chassis.moveToPoint(-50,42, 1000, {.forwards = false});
-            chassis.waitUntil(5);
+            chassis.waitUntil(12);
             intake_motor.move(127);
             intake_hood_roller.move(-127);
-            intake_motor.move(127);
-            pros::delay(50);
-            intake_motor.move(-127);
-            pros::delay(50);
-            intake_motor.move(127);
+            hoodPiston.set_value(true);
             rTongue.set_value(true);
-            pros::delay(2000);
+            pros::delay(1500);
+            chassis.turnToHeading(180, 1000);
            
             chassis.moveToPoint(-50, 0, 1500,{.maxSpeed=60});
             chassis.waitUntil(5);
             intake_hood_roller.move(0);
             chassis.waitUntilDone();
-            pros::delay(2000);
+            pros::delay(2500);
             chassis.moveToPoint(-50,24, 1000, {.forwards = false});
             chassis.turnToHeading(180, 1000);
             chassis.moveToPoint(-50, 42, 1000, {.forwards = false});
             rTongue.set_value(false);
             chassis.waitUntilDone();
             intake_motor.move(127);
-            intake_motor.move(127);
-            pros::delay(50);
-            intake_motor.move(-127);
-            pros::delay(50);
-            intake_motor.move(127);
             intake_hood_roller.move(-127);
             pros::delay(2000);
             intake_hood_roller.move(0);
             intake_motor.move(0);
-            chassis.moveToPoint(-50, 30, 1000);
-            chassis.moveToPoint(-50, 42, 1000, {.forwards= false});
+            hoodPiston.set_value(false);
             break;
         case 2:
             chassis.setPose(12,26,0);
@@ -649,9 +637,11 @@ void opcontrol() {
             Snacky.set_value(snack);
         }
 
-        pros::lcd::print(0, "X %.1f Y %.1f H %.1f", estX, estY, estH * 180 / M_PI);
-        pros::lcd::print(1, "H %.lf", imu.get_heading());
-        pros::lcd::print(2, "Y %.lf", chassis.getPose().y);
+        //pros::lcd::print(0, "X %.1f Y %.1f H %.1f", estX, estY, estH * 180 / M_PI);
+        pros::lcd::print(1, "X %.2lf Y %.2lf",chassis.getPose().x, chassis.getPose().y);
+        pros::lcd::print(2, "H %.2lf", imu.get_heading());
+
+
 
 
         pros::delay(20);
