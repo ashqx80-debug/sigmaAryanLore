@@ -414,6 +414,8 @@ void autonomous()
             intake_hood_roller.move(0);
             intake_motor.move(0);
             hoodPiston.set_value(false);
+            chassis.moveToPoint(-50, 34, 1000);
+            chassis.moveToPoint(-50, 45, 1000, {.minSpeed=90});
             break;
         case 2:
             chassis.setPose(12,26,0);
