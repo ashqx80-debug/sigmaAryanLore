@@ -1,3 +1,4 @@
+#include "pros/llemu.hpp"
 #define ENABLE_MCL 0
 #define MCL_OVERRIDE_CHASSIS 0
 
@@ -31,17 +32,17 @@ pros::MotorGroup right_drive({1, 2, -3}, pros::MotorGears::blue);
 
 lemlib::Drivetrain drivetrain(&left_drive, &right_drive, 11, lemlib::Omniwheel::NEW_325, 450, 2);
 
-pros::Imu imu(15);
+pros::Imu imu(18);
 pros::Rotation enc_vertical(-21);
 pros::Rotation enc_horizontal(-13);
 
-lemlib::TrackingWheel vertTW(&enc_vertical, lemlib::Omniwheel::NEW_275, -0.25);
+lemlib::TrackingWheel vertTW(&enc_vertical, lemlib::Omniwheel::NEW_275, +0.5);
 lemlib::TrackingWheel horzTW(&enc_horizontal, lemlib::Omniwheel::NEW_2, -5.75);
 
 lemlib::OdomSensors odomSensors(&vertTW, nullptr, &horzTW, nullptr, &imu);
 
-lemlib::ControllerSettings lateral(4.2, 0.0001, 2.6, 3, 1, 100, 3, 500, 20);
-lemlib::ControllerSettings angular(2, 0.0001, 6, 0, 0, 0, 0, 0, 0);
+lemlib::ControllerSettings lateral(6, 0.0001, 2.6, 0, 0, 0, 0, 0, 0);
+lemlib::ControllerSettings angular(2.45, 0.0001, 22.5, 0, 0, 0, 0, 0, 100);
 
 lemlib::Chassis chassis(drivetrain, lateral, angular, odomSensors);
 
@@ -375,6 +376,7 @@ void autonomous()
 {
     int autonSelector = 5;
     chassis.setPose(estX, estY, estH * 180 / M_PI);
+    Snacky.set_value(true);
     switch (autonSelector) {
         case 1:
             chassis.setPose(-12,26,0);
@@ -581,16 +583,13 @@ void autonomous()
             case 5: 
 
             chassis.setPose(0,0,0);
-            chassis.turnToHeading(90, 1000);
+            chassis.moveToPoint(0, 24, 1000);
             chassis.waitUntilDone();
-            pros::delay(500);
-            chassis.turnToHeading(-90, 1000);
+            pros::delay(1000);
+            chassis.moveToPoint(0, 0, 1000, {.forwards = false});
             chassis.waitUntilDone();
-            pros::delay(500);
-            chassis.turnToHeading(180, 1000);
-            chassis.waitUntilDone();
-            pros::delay(500);
-            chassis.turnToHeading(0, 1000);
+            pros::delay(1000);
+            break;
 
 
     }
@@ -623,12 +622,12 @@ void opcontrol() {
         }
         else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
             intakePower = 127;
-            intakeRunning = true;
+            intakeRunning = false;
         }
         else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L1)) {
             intakePower = -127;
             hoodRollerPower = 127;
-            intakeRunning = true;
+            intakeRunning = false;
         }
         else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_A)) {
             intakePower = 127;
@@ -637,7 +636,7 @@ void opcontrol() {
         intake_motor.move(intakePower);
         intake_hood_roller.move(hoodRollerPower);
         hoodPiston.set_value(intakeRunning);
-        midGoal.set_value(-hooding);
+        midGoal.set_value(hooding);
 
 
         if (master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X)) {
@@ -651,6 +650,9 @@ void opcontrol() {
         }
 
         pros::lcd::print(0, "X %.1f Y %.1f H %.1f", estX, estY, estH * 180 / M_PI);
+        pros::lcd::print(1, "H %.lf", imu.get_heading());
+        pros::lcd::print(2, "Y %.lf", chassis.getPose().y);
+
 
         pros::delay(20);
     }
