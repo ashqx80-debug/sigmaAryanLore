@@ -375,8 +375,8 @@ double expo(double normalizedInput) {
 void autonomous()
 {
     /*
-    1 - left safe working
-    2 - right safe working
+    1 - left safe | working
+    2 - right safe | working
     3 - blue left (mid goal) | in dev
     4 - blue right (low goal) | not made
     5 - red left (low goal) | not made
@@ -387,7 +387,7 @@ void autonomous()
     10 - pid angular | working
     11 - pid lateral | working 
     */
-    int autonSelector = 1;
+    int autonSelector = 3;
     // chassis.setPose(estX, estY, estH * 180 / M_PI);
     Snacky.set_value(true);
     switch (autonSelector) {
@@ -479,20 +479,21 @@ void autonomous()
             chassis.waitUntil(20);
             rTongue.set_value(true);
             chassis.waitUntilDone();
-            chassis.turnToPoint(0,72, 700, {.forwards = false});
-            chassis.moveToPoint(-62, 62, 1000, {.forwards = false});
-            pros::delay(700);
+            chassis.turnToPoint(0,75, 1000, {.forwards = false});
+            chassis.moveToPoint(12, 65, 800, {.forwards = false, .maxSpeed=70});
+            // pros::delay(300);
             intake_motor.move(0);
             chassis.waitUntilDone();
             midGoal.set_value(true);
             intake_hood_roller.move(-127);
             intake_motor.move(127);
-            pros::delay(900);
+            pros::delay(1000);
             chassis.moveToPoint(-27, 50, 1200);
             chassis.turnToPoint(-52,20, 700);
             chassis.moveToPoint(-52, 20, 1000);
-            chassis.waitUntil(16);
+            chassis.waitUntil(5);
             intake_motor.move(0);
+            midGoal.set_value(false);
             chassis.turnToHeading(180, 700);
             chassis.waitUntilDone();
             rTongue.set_value(true);
