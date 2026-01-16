@@ -474,25 +474,30 @@ void autonomous()
             case 3:
             //blue left (mid goal)
             chassis.setPose(-12,26,0);
-            chassis.moveToPoint(-27, 50, 1300, {.maxSpeed=75});
+            chassis.moveToPoint(-24, 45, 1300, {.maxSpeed=75});
             intake_motor.move(127);
             chassis.waitUntil(20);
             rTongue.set_value(true);
             chassis.waitUntilDone();
-            chassis.turnToPoint(0,75, 1000, {.forwards = false});
-            chassis.moveToPoint(12, 65, 800, {.forwards = false, .maxSpeed=70});
-            // pros::delay(300);
+            chassis.turnToPoint(-15,54, 500, {.forwards = false});
+            chassis.waitUntilDone();
             intake_motor.move(0);
+            //pros::delay(1000000000);
+            chassis.moveToPoint(-15, 54, 800, {.forwards = false, .maxSpeed=70});
+            // pros::delay(300);
+            
             chassis.waitUntilDone();
             midGoal.set_value(true);
             intake_hood_roller.move(-127);
             intake_motor.move(127);
-            pros::delay(1000);
-            chassis.moveToPoint(-27, 50, 1200);
+            hoodPiston.set_value(true);
+            pros::delay(1500);
+            chassis.moveToPoint(-24, 48, 1200);
             chassis.turnToPoint(-52,20, 700);
             chassis.moveToPoint(-52, 20, 1000);
             chassis.waitUntil(5);
             intake_motor.move(0);
+            hoodPiston.set_value(true);
             midGoal.set_value(false);
             chassis.turnToHeading(180, 700);
             chassis.waitUntilDone();
