@@ -635,8 +635,8 @@ void opcontrol() {
             
         }
         else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_A)) {
-            intakePower = 60;
-            hoodRollerPower = -60;
+            intakePower = 75;
+            hoodRollerPower = -75;
             intakeRunning = false;
         }
         intake_motor.move(intakePower);
