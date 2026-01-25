@@ -193,7 +193,7 @@ void initialize() {
     chassis.setBrakeMode(pros::E_MOTOR_BRAKE_COAST);
     pros::lcd::initialize();
     chassis.calibrate();
-    pros::Task mech(mechTask, nullptr);
+    //pros::Task mech(mechTask, nullptr);
 }
 
 // -------------------- EXPO --------------------
@@ -333,7 +333,7 @@ void opcontrol() {
 
         if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
             intakePower = 127;
-            hoodRollerPower = -127;
+            hoodRollerPower = 127;
             intakeRunning = true;
         }
         else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
@@ -344,10 +344,12 @@ void opcontrol() {
             intakePower = -127;
             hoodRollerPower = 127;
             intakeRunning = false;
+            
         }
         else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_A)) {
-            intakePower = 127;
-            hoodRollerPower = 127;
+            intakePower = 60;
+            hoodRollerPower = -60;
+            intakeRunning = false;
         }
 
         intake_motor.move(intakePower);
