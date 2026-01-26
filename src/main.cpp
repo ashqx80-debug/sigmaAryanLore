@@ -661,7 +661,7 @@ void opcontrol() {
 
 
 
-        pros::delay(20);
+        pros::delay(20); //niniga 
     }
 }
 
