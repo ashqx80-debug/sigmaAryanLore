@@ -12,8 +12,8 @@
 // #include <cmath>
 // #include <algorithm>
 
-pros::Motor intake_motor(5, pros::MotorGears::blue);
-pros::Motor intake_hood_roller(10, pros::MotorGears::blue);
+pros::Motor intake_motor(4, pros::MotorGears::blue);
+pros::Motor intake_hood_roller(3, pros::MotorGears::blue);
 
 pros::adi::DigitalOut hoodPiston('A');
 pros::adi::DigitalOut rTongue('C');
@@ -25,14 +25,14 @@ bool tong = false;
 
 pros::Controller master(pros::E_CONTROLLER_MASTER);
 
-pros::MotorGroup left_drive({8, -7, -6}, pros::MotorGears::blue);
-pros::MotorGroup right_drive({1, 2, -3}, pros::MotorGears::blue);
+pros::MotorGroup left_drive({9, -8, -10}, pros::MotorGears::blue);
+pros::MotorGroup right_drive({7, 6, -5}, pros::MotorGears::blue);
 
 lemlib::Drivetrain drivetrain(&left_drive, &right_drive, 11, lemlib::Omniwheel::NEW_325, 450, 2);
 
-pros::Imu imu(18);
-pros::Rotation enc_vertical(-21);
-pros::Rotation enc_horizontal(-13);
+pros::Imu imu(8);
+pros::Rotation enc_vertical(-2);
+pros::Rotation enc_horizontal(-22);
 
 lemlib::TrackingWheel vertTW(&enc_vertical, lemlib::Omniwheel::NEW_275, +0.5);
 lemlib::TrackingWheel horzTW(&enc_horizontal, lemlib::Omniwheel::NEW_2, -5.75);
@@ -605,6 +605,8 @@ void autonomous()
 void opcontrol() {
     while (true) {
 
+        bool isSkills = false;
+
         int leftY  = master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
         int rightX = master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X) / 1.1;
 
@@ -634,10 +636,16 @@ void opcontrol() {
             intakeRunning = false;
             
         }
-        else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_A)) {
-            intakePower = 75;
-            hoodRollerPower = -75;
+        else if (!isSkills && master.get_digital(pros::E_CONTROLLER_DIGITAL_A)) {
+            intakePower = 80;
+            hoodRollerPower = -60;
             intakeRunning = false;
+        }
+        else if (isSkills && master.get_digital(pros::E_CONTROLLER_DIGITAL_A)) {
+            intakePower = 60;
+            hoodRollerPower = -45;
+            intakeRunning = false;
+        
         }
         intake_motor.move(intakePower);
         intake_hood_roller.move(hoodRollerPower);
