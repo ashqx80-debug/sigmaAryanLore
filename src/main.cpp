@@ -258,97 +258,97 @@ lemlib::Chassis chassis(drivetrain, lateral, angular, odomSensors);
 //     }
 // }
 
-// struct MechAction
-// {
-//     enum Type
-//     {
-//         MOTOR,
-//         DIGITAL
-//     } type;
-//     pros::Motor *motor;
-//     pros::adi::DigitalOut *digital;
-//     int value;
-//     int time;
-// };
+struct MechAction
+{
+    enum Type
+    {
+        MOTOR,
+        DIGITAL
+    } type;
+    pros::Motor *motor;
+    pros::adi::DigitalOut *digital;
+    int value;
+    int time;
+};
 
-// std::vector<MechAction> mechQueue;
-// pros::Mutex mechMutex;
+std::vector<MechAction> mechQueue;
+pros::Mutex mechMutex;
 
-// void enqueueMotor(pros::Motor &m, int v, int t = 0)
-// {
-//     mechMutex.take();
-//     MechAction a;
-//     a.type = MechAction::MOTOR;
-//     a.motor = &m;
-//     a.digital = nullptr;
-//     a.value = v;
-//     a.time = t;
-//     mechQueue.push_back(a);
-//     mechMutex.give();
-// }
+void enqueueMotor(pros::Motor &m, int v, int t = 0)
+{
+    mechMutex.take();
+    MechAction a;
+    a.type = MechAction::MOTOR;
+    a.motor = &m;
+    a.digital = nullptr;
+    a.value = v;
+    a.time = t;
+    mechQueue.push_back(a);
+    mechMutex.give();
+}
 
-// void enqueueDigital(pros::adi::DigitalOut &d, bool v, int t = 0)
-// {
-//     mechMutex.take();
-//     MechAction a;
-//     a.type = MechAction::DIGITAL;
-//     a.motor = nullptr;
-//     a.digital = &d;
-//     a.value = v ? 1 : 0;
-//     a.time = t;
-//     mechQueue.push_back(a);
-//     mechMutex.give();
-// }
+void enqueueDigital(pros::adi::DigitalOut &d, bool v, int t = 0)
+{
+    mechMutex.take();
+    MechAction a;
+    a.type = MechAction::DIGITAL;
+    a.motor = nullptr;
+    a.digital = &d;
+    a.value = v ? 1 : 0;
+    a.time = t;
+    mechQueue.push_back(a);
+    mechMutex.give();
+}
 
-// void mechTask(void *)
-// {
-//     int dt = 20;
-//     std::vector<MechAction> active;
+void mechTask(void *)
+{
+    int dt = 20;
+    std::vector<MechAction> active;
 
-//     while (true)
-//     {
-//         mechMutex.take();
-//         for (int i = 0; i < mechQueue.size(); i++)
-//         {
-//             active.push_back(mechQueue[i]);
-//         }
-//         mechQueue.clear();
-//         mechMutex.give();
+    while (true)
+    {
+        mechMutex.take();
+        for (int i = 0; i < mechQueue.size(); i++)
+        {
+            active.push_back(mechQueue[i]);
+        }
+        mechQueue.clear();
+        mechMutex.give();
 
-//         for (int i = active.size() - 1; i >= 0; i--)
-//         {
-//             if (active[i].type == MechAction::MOTOR)
-//             {
-//                 active[i].motor->move(active[i].value);
-//             }
-//             else
-//             {
-//                 active[i].digital->set_value(active[i].value);
-//             }
+        for (int i = active.size() - 1; i >= 0; i--)
+        {
+            if (active[i].type == MechAction::MOTOR)
+            {
+                active[i].motor->move(active[i].value);
+            }
+            else
+            {
+                active[i].digital->set_value(active[i].value);
+            }
 
-//             if (active[i].time > 0)
-//             {
-//                 active[i].time -= dt;
+            if (active[i].time > 0)
+            {
+                active[i].time -= dt;
 
-//                 if (active[i].time <= 0)
-//                 {
-//                     if (active[i].type == MechAction::MOTOR)
-//                     {
-//                         active[i].motor->move(0);
-//                     }
-//                     else
-//                     {
-//                         active[i].digital->set_value(0);
-//                     }
+                if (active[i].time <= 0)
+                {
+                    if (active[i].type == MechAction::MOTOR)
+                    {
+                        active[i].motor->move(0);
+                    }
+                    else
+                    {
+                        active[i].digital->set_value(0);
+                    }
 
-//                     active.erase(active.begin() + i);
-//                 }
-//             }
-//         }
+                    active.erase(active.begin() + i);
+                }
+            }
+        }
 
-//         pros::delay(dt);
-//     }
-// }
+        pros::delay(dt);
+    }
+}
 void initialize()
 {
     chassis.setBrakeMode(pros::E_MOTOR_BRAKE_COAST);
@@ -362,7 +362,7 @@ void initialize()
     //     pros::Task(mclTask, nullptr);
     // }
 
-    // pros::Task(mechTask, nullptr);
+   pros::Task(mechTask, nullptr);
 }
 
 double expo(double normalizedInput) {
@@ -381,7 +381,10 @@ void autonomous()
     8 - blue sig sawp | not made
     9 - skills | not made
     10 - pid angular | working
-    11 - pid lateral | working 
+    11 - pid lateral | working
+    12 - enqueue test left| not tested
+    13 - enqueue test right| not tested
+    14 - mcl test | not made
     */
     int autonSelector = 2;
     // chassis.setPose(estX, estY, estH * 180 / M_PI);
@@ -530,8 +533,8 @@ void autonomous()
             chassis.waitUntil(20);
             rTongue.set_value(true);
             chassis.waitUntilDone();
-            chassis.turnToPoint(0,72, 700, {.forwards = false});
-            chassis.moveToPoint(62, 62, 1000, {.forwards = false});
+            chassis.turnToPoint(50,62, 700 );
+            chassis.moveToPoint(50, 62, 1000);
             pros::delay(700);
             intake_motor.move(0);
             chassis.waitUntilDone();
@@ -567,6 +570,28 @@ void autonomous()
             intake_motor.move(0);
             break;
 
+            case 7:
+            //left sig swap
+            chassis.setPose(-12,26,0);
+            chassis.moveToPoint(-50, 26, 1500, {.maxSpeed=75});
+            break;
+
+            case 8:
+            //right sig swap
+            chassis.setPose(12,26,0);
+            chassis.moveToPoint(48, 26, 1500);
+            chassis.waitUntilDone();
+            chassis.turnToHeading(90, 2000);
+            intake_motor.move(127);
+            chassis.moveToPoint(48, 0, 1500, {.maxSpeed=75});
+            pros::delay(800);
+// sup
+            break;
+
+            case 9:
+            //skills
+            break;
+
             case 10:
             chassis.setPose(0,0,0);
             chassis.turnToHeading(180, 2000);
@@ -595,6 +620,102 @@ void autonomous()
             pros::delay(1000); 
             chassis.moveToPoint(0, 0, 2000);
             break;
+            case 12:
+            // Enqueue version of case 1 (left safe)
+            chassis.setPose(-12, 26, 0);
+
+            enqueueMotor(intake_motor, 127);
+            enqueueMotor(intake_hood_roller, 0);
+            enqueueDigital(rTongue, true);
+
+            chassis.moveToPoint(-27, 50, 1500, {.maxSpeed=75});
+            chassis.waitUntil(20);
+
+            enqueueMotor(intake_motor, 127);
+            enqueueDigital(rTongue, true);
+
+            chassis.turnToPoint(-52, 20, 800);
+            chassis.moveToPoint(-52, 20, 1500);
+            chassis.waitUntil(16);
+
+            enqueueMotor(intake_motor, 127);
+            enqueueMotor(intake_hood_roller, -127);
+            enqueueDigital(hoodPiston, true);
+            enqueueDigital(rTongue, true);
+            pros::delay(1200);
+
+            chassis.turnToHeading(180, 800);
+            chassis.moveToPoint(-49, 0, 1200, {.maxSpeed=65});
+            chassis.waitUntil(5);
+
+            enqueueMotor(intake_hood_roller, 0);
+            enqueueDigital(hoodPiston, false);
+
+            chassis.moveToPoint(-48, 24, 800, {.forwards = false});
+            chassis.turnToHeading(180, 800);
+            chassis.moveToPoint(-48, 42, 800, {.forwards = false});
+
+            enqueueDigital(rTongue, false);
+            enqueueMotor(intake_motor, 127);
+            enqueueMotor(intake_hood_roller, -127);
+            enqueueDigital(hoodPiston, true);
+            pros::delay(750);
+
+            enqueueDigital(hoodPiston, false);
+            enqueueMotor(intake_hood_roller, 0);
+            enqueueMotor(intake_motor, 0);
+
+            chassis.moveToPoint(-48, 48, 500, {.minSpeed = 80});
+            break;
+
+        case 13:
+            // Enqueue version of case 2 (right safe)
+            chassis.setPose(12, 26, 0);
+
+            enqueueMotor(intake_motor, 127);
+            enqueueMotor(intake_hood_roller, 0);
+            enqueueDigital(rTongue, true);
+
+            chassis.moveToPoint(27, 50, 1500, {.maxSpeed=75});
+            chassis.waitUntil(20);
+
+            enqueueMotor(intake_motor, 127);
+            enqueueDigital(rTongue, true);
+
+            chassis.turnToPoint(52, 20, 800);
+            chassis.moveToPoint(52, 20, 1500);
+            chassis.waitUntil(16);
+
+            enqueueMotor(intake_motor, 127);
+            enqueueMotor(intake_hood_roller, -127);
+            enqueueDigital(hoodPiston, true);
+            enqueueDigital(rTongue, true);
+            pros::delay(1200);
+
+            chassis.turnToHeading(180, 800);
+            chassis.moveToPoint(49, 0, 1200, {.maxSpeed=75});
+            chassis.waitUntil(5);
+
+            enqueueMotor(intake_hood_roller, 0);
+            enqueueDigital(hoodPiston, false);
+
+            chassis.moveToPoint(48, 24, 800, {.forwards = false});
+            chassis.turnToHeading(180, 800);
+            chassis.moveToPoint(48, 42, 800, {.forwards = false});
+
+            enqueueDigital(rTongue, false);
+            enqueueMotor(intake_motor, 127);
+            enqueueMotor(intake_hood_roller, -127);
+            enqueueDigital(hoodPiston, true);
+            pros::delay(1500);
+
+            enqueueDigital(hoodPiston, false);
+            enqueueMotor(intake_hood_roller, 0);
+            enqueueMotor(intake_motor, 0);
+
+            chassis.moveToPoint(48, 48, 1000, {.forwards=false, .minSpeed = 80});
+            break;
+
 
 
     }
@@ -621,7 +742,7 @@ void opcontrol() {
 
         if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
             intakePower = 127;
-            hoodRollerPower = 127;
+            hoodRollerPower = -127;
             intakeRunning = true;
         }
         else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
@@ -636,7 +757,7 @@ void opcontrol() {
         }
         else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_A)) {
             intakePower = 75;
-            hoodRollerPower = -75;
+            hoodRollerPower = 75;
             intakeRunning = false;
         }
         intake_motor.move(intakePower);
