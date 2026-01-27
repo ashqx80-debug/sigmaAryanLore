@@ -1,7 +1,7 @@
 {
   "py/object": "pros.conductor.project.Project",
   "py/state": {
-    "project_name": "sigmaAryanLore",
+    "project_name": "SigmaIndriggaLore",
     "target": "v5",
     "templates": {
       "LemLib": {
@@ -635,7 +635,7 @@
       }
     },
     "upload_options": {
-      "icon": "robot"
+      "icon": "pizza"
     },
     "use_early_access": false
   }
