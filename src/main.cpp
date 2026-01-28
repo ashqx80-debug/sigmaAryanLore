@@ -27,8 +27,8 @@ bool tong = false;
 
 pros::Controller master(pros::E_CONTROLLER_MASTER);
 
-pros::MotorGroup left_drive({-9, 8, -10}, pros::MotorGears::blue);
-pros::MotorGroup right_drive({7, 6, -5}, pros::MotorGears::blue);
+pros::MotorGroup left_drive({9, -8, -10}, pros::MotorGears::blue);
+pros::MotorGroup right_drive({-7, 6, 5}, pros::MotorGears::blue);
 
 lemlib::Drivetrain drivetrain(&left_drive, &right_drive, 11, lemlib::Omniwheel::NEW_325, 450, 2);
 
@@ -742,6 +742,7 @@ void opcontrol() {
         bool intakeRunning = false;
         int intakePower = 0;
         int hoodRollerPower = 0;
+        bool midgoalActive = false;
         
 
         if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
@@ -759,30 +760,28 @@ void opcontrol() {
             intakeRunning = false;
             
         }
-        else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_A)) {
-            intakePower = 75;
-            hoodRollerPower = 75;
-        }
         else if (!isSkills && master.get_digital(pros::E_CONTROLLER_DIGITAL_A)) {
             intakePower = 80;
-            hoodRollerPower = -60;
+            hoodRollerPower = 60;
             intakeRunning = false;
+            midgoalActive = true;
         
         }
         else if (isSkills && master.get_digital(pros::E_CONTROLLER_DIGITAL_A)) {
             intakePower = 60;
-            hoodRollerPower = -45;
+            hoodRollerPower = 45;
             intakeRunning = false;
-            midgoalPiston.set_value(true);
+            midgoalActive = true;
         }
         else {
             intakePower = 0;
             hoodRollerPower = 0;
-            midgoalPiston.set_value(false);
+            midgoalActive = false;
         }
         intake_motor.move(intakePower);
         intake_hood_roller.move(hoodRollerPower);
         hoodPiston.set_value(intakeRunning);
+        midgoalPiston.set_value(midgoalActive);
 
 
         if (master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X)) {
