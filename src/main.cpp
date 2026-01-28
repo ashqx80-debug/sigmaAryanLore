@@ -7,6 +7,7 @@
 #include "pros/adi.hpp"
 #include "pros/motors.h"
 #include "pros/rtos.hpp"
+#include <numeric>
 // #include <vector>
 // #include <random>
 // #include <cmath>
@@ -18,6 +19,7 @@ pros::Motor intake_hood_roller(3, pros::MotorGears::blue);
 pros::adi::DigitalOut hoodPiston('A');
 pros::adi::DigitalOut rTongue('C');
 pros::adi::DigitalOut Snacky('B');
+pros::adi::DigitalOut midgoalPiston('D');
 
 bool hood = false;
 bool snack = false;
@@ -771,7 +773,12 @@ void opcontrol() {
             intakePower = 60;
             hoodRollerPower = -45;
             intakeRunning = false;
-        
+            midgoalPiston.set_value(true);
+        }
+        else {
+            intakePower = 0;
+            hoodRollerPower = 0;
+            midgoalPiston.set_value(false);
         }
         intake_motor.move(intakePower);
         intake_hood_roller.move(hoodRollerPower);
