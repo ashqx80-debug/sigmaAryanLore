@@ -27,7 +27,7 @@ bool tong = false;
 
 pros::Controller master(pros::E_CONTROLLER_MASTER);
 
-pros::MotorGroup left_drive({9, -8, -10}, pros::MotorGears::blue);
+pros::MotorGroup left_drive({-9, 8, -10}, pros::MotorGears::blue);
 pros::MotorGroup right_drive({7, 6, -5}, pros::MotorGears::blue);
 
 lemlib::Drivetrain drivetrain(&left_drive, &right_drive, 11, lemlib::Omniwheel::NEW_325, 450, 2);
