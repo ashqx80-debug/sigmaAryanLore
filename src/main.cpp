@@ -27,12 +27,12 @@ bool tong = false;
 
 pros::Controller master(pros::E_CONTROLLER_MASTER);
 
-pros::MotorGroup left_drive({-9, 8, -10}, pros::MotorGears::blue);
-pros::MotorGroup right_drive({7, 6, -5}, pros::MotorGears::blue);
+pros::MotorGroup left_drive({9, -8, -10}, pros::MotorGears::blue);
+pros::MotorGroup right_drive({-7, 6, 5}, pros::MotorGears::blue);
 
 lemlib::Drivetrain drivetrain(&left_drive, &right_drive, 11, lemlib::Omniwheel::NEW_325, 450, 2);
 
-pros::Imu imu(8);
+pros::Imu imu(1);
 pros::Rotation enc_vertical(-2);
 pros::Rotation enc_horizontal(-22);
 
@@ -41,8 +41,8 @@ lemlib::TrackingWheel horzTW(&enc_horizontal, lemlib::Omniwheel::NEW_2, -5.75);
 
 lemlib::OdomSensors odomSensors(&vertTW, nullptr, &horzTW, nullptr, &imu);
 
-lemlib::ControllerSettings lateral(5, 0.0001, 21, 0, 0, 0, 0, 0, 30);
-lemlib::ControllerSettings angular(2.45, 0.0001, 22.5, 3, 1, 200, 3, 600, 90);
+lemlib::ControllerSettings lateral(4, 0.0001, 21, 0, 0, 0, 0, 0, 20);
+lemlib::ControllerSettings angular(2.9, 0.0001, 26, 0, 0, 0, 0, 0, 0);
 
 lemlib::Chassis chassis(drivetrain, lateral, angular, odomSensors);
 
@@ -364,7 +364,7 @@ void initialize()
     //     pros::Task(mclTask, nullptr);
     // }
 
-   pros::Task(mechTask, nullptr);
+   //pros::Task(mechTask, nullptr);
 }
 
 double expo(double normalizedInput) {
@@ -388,10 +388,10 @@ void autonomous()
     13 - enqueue test right| not tested
     14 - mcl test | not made
     */
-    int autonSelector = 2;
+    int autonSelector = 1;
     // chassis.setPose(estX, estY, estH * 180 / M_PI);
     Snacky.set_value(true);
-    switch (autonSelector) {
+    switch (autonSelector) {    
         case 1:
             chassis.setPose(-12,26,0);
             chassis.moveToPoint(-27, 50, 1500, {.maxSpeed=75});
@@ -596,16 +596,21 @@ void autonomous()
 
             case 10:
             chassis.setPose(0,0,0);
+            pros::lcd::print(2, "H %.2lf", imu.get_heading());
             chassis.turnToHeading(180, 2000);
+            pros::lcd::print(2, "H %.2lf", imu.get_heading());
             chassis.waitUntilDone();
             pros::delay(1000);
             chassis.turnToHeading(-90, 2000);
+            pros::lcd::print(2, "H %.2lf", imu.get_heading());
             chassis.waitUntilDone();
             pros::delay(1000);
             chassis.turnToHeading(90, 2000);
+            pros::lcd::print(2, "H %.2lf", imu.get_heading());
             chassis.waitUntilDone();
             pros::delay(1000);
             chassis.turnToHeading(0, 2000);
+            pros::lcd::print(2, "H %.2lf", imu.get_heading());
 
             break;
 
@@ -617,7 +622,7 @@ void autonomous()
             chassis.moveToPoint(0, 48, 2000);
             chassis.waitUntilDone();
             pros::delay(1000);
-            chassis.moveToPoint(0, -24, 2000);
+            chassis.moveToPoint(0, -24, 2000, {.forwards = false});
             chassis.waitUntilDone();
             pros::delay(1000); 
             chassis.moveToPoint(0, 0, 2000);
@@ -742,6 +747,7 @@ void opcontrol() {
         bool intakeRunning = false;
         int intakePower = 0;
         int hoodRollerPower = 0;
+        bool midgoalActive = false;
         
 
         if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
@@ -759,30 +765,28 @@ void opcontrol() {
             intakeRunning = false;
             
         }
-        else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_A)) {
-            intakePower = 75;
-            hoodRollerPower = 75;
-        }
         else if (!isSkills && master.get_digital(pros::E_CONTROLLER_DIGITAL_A)) {
             intakePower = 80;
-            hoodRollerPower = -60;
+            hoodRollerPower = 60;
             intakeRunning = false;
+            midgoalActive = true;
         
         }
         else if (isSkills && master.get_digital(pros::E_CONTROLLER_DIGITAL_A)) {
             intakePower = 60;
-            hoodRollerPower = -45;
+            hoodRollerPower = 45;
             intakeRunning = false;
-            midgoalPiston.set_value(true);
+            midgoalActive = true;
         }
         else {
             intakePower = 0;
             hoodRollerPower = 0;
-            midgoalPiston.set_value(false);
+            midgoalActive = false;
         }
         intake_motor.move(intakePower);
         intake_hood_roller.move(hoodRollerPower);
         hoodPiston.set_value(intakeRunning);
+        midgoalPiston.set_value(midgoalActive);
 
 
         if (master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X)) {
