@@ -5,6 +5,7 @@
 #include "main.h"
 #include "lemlib/api.hpp"
 #include "pros/adi.hpp"
+#include "pros/distance.hpp"
 #include "pros/motors.h"
 #include "pros/rtos.hpp"
 #include <numeric>
@@ -15,6 +16,7 @@
 
 pros::Motor intake_motor(4, pros::MotorGears::blue);
 pros::Motor intake_hood_roller(3, pros::MotorGears::blue);
+
 
 pros::adi::DigitalOut hoodPiston('A');
 pros::adi::DigitalOut rTongue('C');
@@ -35,6 +37,7 @@ lemlib::Drivetrain drivetrain(&left_drive, &right_drive, 11, lemlib::Omniwheel::
 pros::Imu imu(1);
 pros::Rotation enc_vertical(-2);
 pros::Rotation enc_horizontal(-22);
+pros::Distance  intake_dist(21);
 
 lemlib::TrackingWheel vertTW(&enc_vertical, lemlib::Omniwheel::NEW_275, +0.5);
 lemlib::TrackingWheel horzTW(&enc_horizontal, lemlib::Omniwheel::NEW_2, -5.75);
@@ -408,8 +411,7 @@ void autonomous()
             chassis.waitUntilDone();
             intake_motor.move(127);
             intake_hood_roller.move(-127);
-            hoodPiston.set_value(true);
-            rTongue.set_value(true);
+            hoodPiston.set_value(true); 
             pros::delay(1200);
             chassis.turnToHeading(180, 800);
             chassis.moveToPoint(-49, 0, 1200, {.maxSpeed=65});
@@ -581,18 +583,108 @@ void autonomous()
             case 8:
             //right sig swap
             chassis.setPose(12,26,0);
-            chassis.moveToPoint(48, 26, 1500);
+            chassis.moveToPoint(48, 26, 500);
             chassis.waitUntilDone();
-            chassis.turnToHeading(90, 2000);
+            chassis.turnToHeading(90, 500);
             intake_motor.move(127);
-            chassis.moveToPoint(48, 0, 1500, {.maxSpeed=75});
+            rTongue.set_value(true);
+            chassis.moveToPoint(48, 0, 500, {.maxSpeed=75});
+            chassis.waitUntilDone();
             pros::delay(800);
+            chassis.moveToPoint(48, 42, 1000);
+            rTongue.set_value(false);
+            chassis.waitUntilDone();
+            intake_hood_roller.move(-127);
+            hoodPiston.set_value(true);
+            pros::delay(1000);
+
+
 // sup
             break;
 
-            case 9:
-            //skills
-            break;
+            case 9: {
+                chassis.setPose(12, 26, 0);
+
+                chassis.moveToPoint(48, 26, 500);
+                chassis.waitUntilDone();
+
+                chassis.turnToHeading(90, 500);
+
+                intake_motor.move(127);
+                rTongue.set_value(true);
+
+                chassis.moveToPoint(48, 0, 500, {.maxSpeed = 75});
+                chassis.waitUntilDone();
+                pros::delay(1600);
+
+                chassis.moveToPoint(71, 35, 1000, {.forwards = false});
+                rTongue.set_value(false);
+                chassis.waitUntilDone();
+                intake_motor.move(0);
+
+                int dist_ref = intake_dist.get();
+                int valid_count = 0;
+
+                chassis.moveToPoint(71, 120, 3000, {.forwards = false});
+
+                while (chassis.isInMotion()) {
+                    int d = intake_dist.get();
+                    int delta = dist_ref - d;
+
+                    if (delta > 350 && delta < 1200) {
+                        valid_count++;
+                    } else {
+                        valid_count = 0;
+                    }
+
+                    if (valid_count >= 5) {
+                        chassis.cancelMotion();
+                        break;
+                    }
+
+                    pros::delay(10);
+                }
+
+                chassis.waitUntilDone();
+                pros::delay(100);
+
+                imu.reset();
+                enc_vertical.reset();
+
+                chassis.setPose(71, 120, 180);
+
+                chassis.turnToHeading(180, 500);
+                chassis.moveToPoint(48, 120, 500);
+                chassis.turnToHeading(-90, 500);
+                chassis.waitUntilDone();
+
+                chassis.moveToPoint(48, 102, 500, {.forwards = false});
+                chassis.waitUntilDone();
+
+                intake_motor.move(127);
+                intake_hood_roller.move(-127);
+                hoodPiston.set_value(true);
+
+                pros::delay(2000);
+
+                rTongue.set_value(true);
+                hoodPiston.set_value(false);
+                intake_hood_roller.move(0);
+
+                chassis.moveToPoint(48, 144, 500, {.maxSpeed = 75});
+                chassis.waitUntilDone();
+                pros::delay(1600);
+
+                chassis.moveToPoint(48, 102, 1000, {.forwards = false});
+                chassis.waitUntilDone();
+
+                intake_hood_roller.move(-127);
+                hoodPiston.set_value(true);
+                pros::delay(1500);
+
+                break;
+            }
+
 
             case 10:
             chassis.setPose(0,0,0);
@@ -733,7 +825,6 @@ void autonomous()
 void opcontrol() {
     while (true) {
 
-        bool isSkills = false;
 
         int leftY  = master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
         int rightX = master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X) / 1.1;
@@ -752,7 +843,7 @@ void opcontrol() {
 
         if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
             intakePower = 127;
-            hoodRollerPower = -127;
+            hoodRollerPower = 127;
             intakeRunning = true;
         }
         else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
@@ -761,22 +852,16 @@ void opcontrol() {
         }
         else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L1)) {
             intakePower = -127;
-            hoodRollerPower = 127;
+            hoodRollerPower = -127;
             intakeRunning = false;
             
         }
-        else if (!isSkills && master.get_digital(pros::E_CONTROLLER_DIGITAL_A)) {
-            intakePower = 80;
-            hoodRollerPower = 60;
+        else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_A)) {
+            intakePower = -90;
+            hoodRollerPower = -90;
             intakeRunning = false;
             midgoalActive = true;
-        
-        }
-        else if (isSkills && master.get_digital(pros::E_CONTROLLER_DIGITAL_A)) {
-            intakePower = 60;
-            hoodRollerPower = 45;
-            intakeRunning = false;
-            midgoalActive = true;
+    
         }
         else {
             intakePower = 0;
