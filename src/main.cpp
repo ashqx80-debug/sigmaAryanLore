@@ -15,7 +15,7 @@
 // #include <algorithm>
 
 pros::Motor intake_motor(4, pros::MotorGears::blue);
-pros::Motor intake_hood_roller(3, pros::MotorGears::blue);
+pros::Motor intake_hood_roller(-3, pros::MotorGears::blue);
 
 
 pros::adi::DigitalOut hoodPiston('A');
@@ -825,6 +825,7 @@ void autonomous()
 void opcontrol() {
     while (true) {
 
+        bool isSkills = false;
 
         int leftY  = master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
         int rightX = master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X) / 1.1;
@@ -843,7 +844,7 @@ void opcontrol() {
 
         if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
             intakePower = 127;
-            hoodRollerPower = 127;
+            hoodRollerPower = -127;
             intakeRunning = true;
         }
         else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
@@ -852,16 +853,22 @@ void opcontrol() {
         }
         else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L1)) {
             intakePower = -127;
-            hoodRollerPower = -127;
+            hoodRollerPower = 127;
             intakeRunning = false;
             
         }
-        else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_A)) {
-            intakePower = -90;
-            hoodRollerPower = -90;
+        else if (!isSkills && master.get_digital(pros::E_CONTROLLER_DIGITAL_A)) {
+            intakePower = 90;
+            hoodRollerPower = 90;
             intakeRunning = false;
             midgoalActive = true;
-    
+        
+        }
+        else if (isSkills && master.get_digital(pros::E_CONTROLLER_DIGITAL_A)) {
+            intakePower = 60;
+            hoodRollerPower = 45;
+            intakeRunning = false;
+            midgoalActive = true;
         }
         else {
             intakePower = 0;
