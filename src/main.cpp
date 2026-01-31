@@ -602,7 +602,7 @@ void autonomous()
 // sup
             break;
 
-            case 9: {
+            case 9: {                
                 chassis.setPose(12, 26, 0);
 
                 chassis.moveToPoint(48, 26, 500);
