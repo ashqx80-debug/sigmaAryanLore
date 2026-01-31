@@ -605,7 +605,7 @@ void autonomous()
 <<<<<<< HEAD
             case 9: 
 =======
-            case 9: {                
+            case 9:                 
 >>>>>>> e471912add365de72a459cc5de083fe0c591873f
                 chassis.setPose(12, 26, 0);
 
