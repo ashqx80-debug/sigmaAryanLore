@@ -15,12 +15,12 @@
 // #include <algorithm>
 
 pros::Motor intake_motor(4, pros::MotorGears::blue);
-pros::Motor intake_hood_roller(-3, pros::MotorGears::blue);
+pros::Motor intake_hood_roller(3, pros::MotorGears::blue);
 
 
 pros::adi::DigitalOut hoodPiston('A');
-pros::adi::DigitalOut rTongue('C');
-pros::adi::DigitalOut Snacky('B');
+pros::adi::DigitalOut rTongue('B');
+pros::adi::DigitalOut Snacky('C');
 pros::adi::DigitalOut midgoalPiston('D');
 
 bool hood = false;
@@ -39,12 +39,12 @@ pros::Rotation enc_vertical(-2);
 pros::Rotation enc_horizontal(-22);
 pros::Distance  intake_dist(21);
 
-lemlib::TrackingWheel vertTW(&enc_vertical, lemlib::Omniwheel::NEW_275, +0.5);
+lemlib::TrackingWheel vertTW(&enc_vertical, lemlib::Omniwheel::NEW_275, 0.5);
 lemlib::TrackingWheel horzTW(&enc_horizontal, lemlib::Omniwheel::NEW_2, -5.75);
 
 lemlib::OdomSensors odomSensors(&vertTW, nullptr, &horzTW, nullptr, &imu);
 
-lemlib::ControllerSettings lateral(4, 0.0001, 21, 0, 0, 0, 0, 0, 20);
+lemlib::ControllerSettings lateral(5, 0.0001, 21, 3, 3, 1, 3, 100, 20);
 lemlib::ControllerSettings angular(2.9, 0.0001, 26, 0, 0, 0, 0, 0, 0);
 
 lemlib::Chassis chassis(drivetrain, lateral, angular, odomSensors);
@@ -391,7 +391,7 @@ void autonomous()
     13 - enqueue test right| not tested
     14 - mcl test | not made
     */
-    int autonSelector = 1;
+    int autonSelector = 9;
     // chassis.setPose(estX, estY, estH * 180 / M_PI);
     Snacky.set_value(true);
     switch (autonSelector) {    
@@ -602,12 +602,12 @@ void autonomous()
 // sup
             break;
 
-            case 9: {
+            case 9: 
                 chassis.setPose(12, 26, 0);
 
-                chassis.moveToPoint(48, 26, 500);
+                chassis.moveToPoint(48, 26, 1500);
                 chassis.waitUntilDone();
-
+pros::delay(500);
                 chassis.turnToHeading(90, 500);
 
                 intake_motor.move(127);
@@ -622,36 +622,13 @@ void autonomous()
                 chassis.waitUntilDone();
                 intake_motor.move(0);
 
-                int dist_ref = intake_dist.get();
-                int valid_count = 0;
+                //int dist_ref = intake_dist.get();
+                //int valid_count = 0;
 
                 chassis.moveToPoint(71, 120, 3000, {.forwards = false});
-
-                while (chassis.isInMotion()) {
-                    int d = intake_dist.get();
-                    int delta = dist_ref - d;
-
-                    if (delta > 350 && delta < 1200) {
-                        valid_count++;
-                    } else {
-                        valid_count = 0;
-                    }
-
-                    if (valid_count >= 5) {
-                        chassis.cancelMotion();
-                        break;
-                    }
-
-                    pros::delay(10);
-                }
-
                 chassis.waitUntilDone();
-                pros::delay(100);
 
-                imu.reset();
-                enc_vertical.reset();
-
-                chassis.setPose(71, 120, 180);
+                 chassis.setPose(71, 120, 180);
 
                 chassis.turnToHeading(180, 500);
                 chassis.moveToPoint(48, 120, 500);
@@ -683,7 +660,12 @@ void autonomous()
                 pros::delay(1500);
 
                 break;
-            }
+                
+                
+
+              
+
+
 
 
             case 10:
@@ -826,6 +808,8 @@ void opcontrol() {
     while (true) {
 
         bool isSkills = false;
+        bool midgoalActive = false;
+        bool intakeRunning = false;
 
         int leftY  = master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
         int rightX = master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X) / 1.1;
@@ -836,49 +820,66 @@ void opcontrol() {
         left_drive.move(driveForward + driveTurn);
         right_drive.move(driveForward - driveTurn);
 
-        bool intakeRunning = false;
-        int intakePower = 0;
-        int hoodRollerPower = 0;
-        bool midgoalActive = false;
+        // bool intakeRunning = false;
+        // int intakePower = 0;
+        // int hoodRollerPower = 0;
+        // bool midgoalActive = false;
         
 
         if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
-            intakePower = 127;
-            hoodRollerPower = -127;
+            // intakePower = 127;
+            // hoodRollerPower = -127;
+            // intakeRunning = true;
+            intake_motor.move(127);
+            intake_hood_roller.move(127);
             intakeRunning = true;
         }
+
         else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
-            intakePower = 127;
-            intakeRunning = false;
-        }
-        else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L1)) {
-            intakePower = -127;
-            hoodRollerPower = 127;
-            intakeRunning = false;
+            // intakePower = 127;
+            // intakeRunning = false;
+            intake_motor.move(127);
+            
             
         }
-        else if (!isSkills && master.get_digital(pros::E_CONTROLLER_DIGITAL_A)) {
-            intakePower = 90;
-            hoodRollerPower = 90;
-            intakeRunning = false;
-            midgoalActive = true;
-        
+        else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L1)) {
+            // intakePower = -127;
+            // hoodRollerPower = 127;
+            // intakeRunning = false;
+
+            intake_motor.move(-127);
+            intake_hood_roller.move(-127);
+            hoodPiston.set_value(false);
+
         }
-        else if (isSkills && master.get_digital(pros::E_CONTROLLER_DIGITAL_A)) {
-            intakePower = 60;
-            hoodRollerPower = 45;
-            intakeRunning = false;
+        else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_A)) {
+            intake_motor.move(90);
+            intake_hood_roller.move(-90);
             midgoalActive = true;
         }
         else {
-            intakePower = 0;
-            hoodRollerPower = 0;
+            intake_motor.move(0);
+            intake_hood_roller.move(0);
             midgoalActive = false;
+            intakeRunning = false;
         }
-        intake_motor.move(intakePower);
-        intake_hood_roller.move(hoodRollerPower);
-        hoodPiston.set_value(intakeRunning);
         midgoalPiston.set_value(midgoalActive);
+        hoodPiston.set_value(intakeRunning);
+        // else if (!isSkills && master.get_digital(pros::E_CONTROLLER_DIGITAL_A)) {
+        //     intakePower = 90;
+        //     hoodRollerPower = 90;
+        //     intakeRunning = false;
+        //     midgoalActive = true;
+        
+        // }
+        
+        //     intakePower = 0;
+        //     hoodRollerPower = 0;
+        //     midgoalActive = false;
+        // }
+       
+
+
 
 
         if (master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X)) {
