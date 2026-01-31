@@ -1,6 +1,6 @@
 // #include "pros/llemu.hpp"
-// #define ENABLE_MCL 0
 // #define MCL_OVERRIDE_CHASSIS 0
+// #define ENABLE_MCL 0
 
 #include "main.h"
 #include "lemlib/api.hpp"
@@ -527,6 +527,13 @@ void autonomous()
             hoodPiston.set_value(false);
             intake_hood_roller.move(0);
             intake_motor.move(0);
+            //  chassis.setPose(12, 26, 0);
+            //     chassis.moveToPoint(47, 26,1000);
+            //     chassis.turnToHeading(182,1000);
+            //     rTongue.set_value(true);
+            //     intake_motor.move(127);
+            //     pros::delay(800);
+            //     chassis.moveToPoint(47, 0,1200, {.maxSpeed=75});
             break;
 
             //red right (low goal)
@@ -605,19 +612,63 @@ void autonomous()
 //<<<<<<< HEAD
 //<<<<<<< HEAD
             case 9: 
-//======= dheera elims
-                             
-//>>>>>>> e471912add365de72a459cc5de083fe0c591873f
-//=======
-                            
-//>>>>>>> dd4229855af38d462cebc23f27249c684945b36b
+//.        skills
                 chassis.setPose(12, 26, 0);
-                chassis.moveToPoint(47, 26,1000);
-                chassis.turnToHeading(182,1000);
-                rTongue.set_value(true);
+
+                chassis.moveToPoint(48, 26, 1500);
+                chassis.waitUntilDone();
+                pros::delay(500);
+                chassis.turnToHeading(90, 500);
+
                 intake_motor.move(127);
-                pros::delay(800);
-                chassis.moveToPoint(47, 0,1200, {.maxSpeed=75});
+                rTongue.set_value(true);
+
+                chassis.moveToPoint(48, 0, 500, {.maxSpeed = 75});
+                chassis.waitUntilDone();
+                pros::delay(1600);
+
+                chassis.moveToPoint(71, 35, 1000, {.forwards = false});
+                rTongue.set_value(false);
+                chassis.waitUntilDone();
+                intake_motor.move(0);
+
+                //int dist_ref = intake_dist.get();
+                //int valid_count = 0;
+
+                chassis.moveToPoint(71, 120, 3000, {.forwards = false});
+                chassis.waitUntilDone();
+
+                 chassis.setPose(71, 120, 180);
+
+                chassis.turnToHeading(180, 500);
+                chassis.moveToPoint(48, 120, 500);
+                chassis.turnToHeading(-90, 500);
+                chassis.waitUntilDone();
+
+                chassis.moveToPoint(48, 102, 500, {.forwards = false});
+                chassis.waitUntilDone();
+
+                intake_motor.move(127);
+                intake_hood_roller.move(-127);
+                hoodPiston.set_value(true);
+
+                pros::delay(2000);
+
+                rTongue.set_value(true);
+                hoodPiston.set_value(false);
+                intake_hood_roller.move(0);
+
+                chassis.moveToPoint(48, 144, 500, {.maxSpeed = 75});
+                chassis.waitUntilDone();
+                pros::delay(1600);
+
+                chassis.moveToPoint(48, 102, 1000, {.forwards = false});
+                chassis.waitUntilDone();
+
+                intake_hood_roller.move(-127);
+                hoodPiston.set_value(true);
+                pros::delay(1500);
+               
             break;
             
                 
