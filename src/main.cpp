@@ -602,16 +602,12 @@ void autonomous()
 // sup
             break;
 
-<<<<<<< HEAD
-            case 9: 
-=======
-            case 9: {                
->>>>>>> e471912add365de72a459cc5de083fe0c591873f
+            case 9:                 
                 chassis.setPose(12, 26, 0);
 
                 chassis.moveToPoint(48, 26, 1500);
                 chassis.waitUntilDone();
-pros::delay(500);
+                pros::delay(500);
                 chassis.turnToHeading(90, 500);
 
                 intake_motor.move(127);
