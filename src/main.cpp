@@ -592,21 +592,42 @@ void autonomous()
 
             case 8:
             //right sig swap
-            chassis.setPose(12,26,0);
-            chassis.moveToPoint(48, 26, 500);
-            chassis.waitUntilDone();
-            chassis.turnToHeading(90, 500);
-            intake_motor.move(127);
-            rTongue.set_value(true);
-            chassis.moveToPoint(48, 0, 500, {.maxSpeed=75});
-            chassis.waitUntilDone();
-            pros::delay(800);
-            chassis.moveToPoint(48, 42, 1000);
-            rTongue.set_value(false);
-            chassis.waitUntilDone();
-            intake_hood_roller.move(-127);
-            hoodPiston.set_value(true);
-            pros::delay(1000);
+                chassis.setPose(12,26,90);
+                chassis.moveToPoint(49, 26, 500);
+                chassis.waitUntilDone();
+                chassis.turnToHeading(180, 500);
+                chassis.waitUntilDone();
+
+                intake_motor.move(127);
+                rTongue.set_value(true);
+
+                chassis.moveToPoint(49, 0, 500, {.maxSpeed = 60});
+                chassis.waitUntilDone();
+                left_drive.move_velocity(127);
+                right_drive.move_velocity(127);
+                pros::delay(800);
+                chassis.turnToPoint(49, 42, 500, {.forwards = false});
+                chassis.moveToPoint(49, 42, 1000, {.forwards = false});
+                rTongue.set_value(false);
+                chassis.waitUntilDone();
+                intake_hood_roller.move(127);
+                hoodPiston.set_value(true);
+                pros::delay(1500);
+                hoodPiston.set_value(false);
+                intake_hood_roller.move(0);
+                chassis.moveToPoint(49, 26, 500);
+                chassis.turnToPoint(27, 50, 500);
+                chassis.moveToPoint(27, 50, 1000, {.maxSpeed=75});
+                chassis.waitUntil(20);
+                rTongue.set_value(true);
+                chassis.waitUntilDone();
+                rTongue.set_value(false);
+                chassis.turnToPoint(-27, 50, 500);
+                chassis.moveToPoint(-27, 50, 1500, {.maxSpeed=75});
+                chassis.waitUntil(20);
+                rTongue.set_value(true);
+                chassis.waitUntilDone();
+                
 
 
 
@@ -865,8 +886,13 @@ void opcontrol() {
 
         }
         else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_A)) {
+            intake_motor.move(-90);
+            intake_hood_roller.move(90);
+            pros::delay(200);
             intake_motor.move(90);
             intake_hood_roller.move(-90);
+
+
 
         }
         else {
@@ -876,6 +902,7 @@ void opcontrol() {
         }
         midgoalPiston.set_value(master.get_digital(pros::E_CONTROLLER_DIGITAL_A));
         hoodPiston.set_value(master.get_digital(pros::E_CONTROLLER_DIGITAL_R2));
+        rTongue.set_value(master.get_digital(pros::E_CONTROLLER_DIGITAL_A));
         // else if (!isSkills && master.get_digital(pros::E_CONTROLLER_DIGITAL_A)) {
         //     intakePower = 90;
         //     hoodRollerPower = 90;
