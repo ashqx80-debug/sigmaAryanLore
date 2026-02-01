@@ -382,6 +382,7 @@ void autonomous()
     2 - right safe | working
     3 - mid goal (left) | in dev
     5 - low goal (right) | not made
+    
     7 - red sig sawp | not made
     8 - blue sig sawp | not made
     9 - skills | not made
