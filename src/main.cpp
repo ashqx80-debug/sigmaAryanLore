@@ -832,9 +832,7 @@ void autonomous()
 void opcontrol() {
     while (true) {
 
-        bool isSkills = false;
-        bool midgoalActive = false;
-        bool intakeRunning = false;
+
 
         int leftY  = master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
         int rightX = master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X) / 1.1;
@@ -845,51 +843,41 @@ void opcontrol() {
         left_drive.move(driveForward + driveTurn);
         right_drive.move(driveForward - driveTurn);
 
-        // bool intakeRunning = false;
-        // int intakePower = 0;
-        // int hoodRollerPower = 0;
-        // bool midgoalActive = false;
+
         
 
         if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
-            // intakePower = 127;
-            // hoodRollerPower = -127;
-            // intakeRunning = true;
+
             intake_motor.move(127);
             intake_hood_roller.move(127);
-            intakeRunning = true;
         }
 
         else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
-            // intakePower = 127;
-            // intakeRunning = false;
+
             intake_motor.move(127);
             
             
         }
         else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L1)) {
-            // intakePower = -127;
-            // hoodRollerPower = 127;
-            // intakeRunning = false;
+
 
             intake_motor.move(-127);
             intake_hood_roller.move(-127);
-            hoodPiston.set_value(false);
+
 
         }
         else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_A)) {
             intake_motor.move(90);
             intake_hood_roller.move(-90);
-            midgoalActive = true;
+
         }
         else {
             intake_motor.move(0);
             intake_hood_roller.move(0);
-            midgoalActive = false;
-            intakeRunning = false;
+
         }
-        midgoalPiston.set_value(midgoalActive);
-        hoodPiston.set_value(intakeRunning);
+        midgoalPiston.set_value(master.get_digital(pros::E_CONTROLLER_DIGITAL_A));
+        hoodPiston.set_value(master.get_digital(pros::E_CONTROLLER_DIGITAL_R2));
         // else if (!isSkills && master.get_digital(pros::E_CONTROLLER_DIGITAL_A)) {
         //     intakePower = 90;
         //     hoodRollerPower = 90;
