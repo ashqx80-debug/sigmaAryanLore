@@ -393,10 +393,11 @@ void autonomous()
     13 - enqueue test right| not tested
     14 - mcl test | not made
     */
-    int autonSelector = 9;
+    int autonSelector = 2;
     // chassis.setPose(estX, estY, estH * 180 / M_PI);
     Snacky.set_value(true);
-    switch (autonSelector) {    
+    switch (autonSelector)
+        {    
         case 1:
             chassis.setPose(-12,26,0);
             chassis.moveToPoint(-27, 50, 1500, {.maxSpeed=75});
@@ -886,9 +887,6 @@ void opcontrol() {
 
         }
         else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_A)) {
-            intake_motor.move(-90);
-            intake_hood_roller.move(90);
-            pros::delay(200);
             intake_motor.move(90);
             intake_hood_roller.move(-90);
 
