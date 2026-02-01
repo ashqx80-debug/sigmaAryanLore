@@ -382,7 +382,8 @@ void autonomous()
     2 - right safe | working
     3 - mid goal (left) | in dev
     5 - low goal (right) | not made
-    
+    4 - 4 ball rush (left) | not made
+    6 - 4 ball rush (right) | not made
     7 - red sig sawp | not made
     8 - blue sig sawp | not made
     9 - skills | not made
@@ -392,10 +393,11 @@ void autonomous()
     13 - enqueue test right| not tested
     14 - mcl test | not made
     */
-    int autonSelector = 9;
+    int autonSelector = 2;
     // chassis.setPose(estX, estY, estH * 180 / M_PI);
     Snacky.set_value(true);
-    switch (autonSelector) {    
+    switch (autonSelector)
+        {    
         case 1:
             chassis.setPose(-12,26,0);
             chassis.moveToPoint(-27, 50, 1500, {.maxSpeed=75});
@@ -591,28 +593,46 @@ void autonomous()
 
             case 8:
             //right sig swap
-            chassis.setPose(12,26,0);
-            chassis.moveToPoint(48, 26, 500);
-            chassis.waitUntilDone();
-            chassis.turnToHeading(90, 500);
-            intake_motor.move(127);
-            rTongue.set_value(true);
-            chassis.moveToPoint(48, 0, 500, {.maxSpeed=75});
-            chassis.waitUntilDone();
-            pros::delay(800);
-            chassis.moveToPoint(48, 42, 1000);
-            rTongue.set_value(false);
-            chassis.waitUntilDone();
-            intake_hood_roller.move(-127);
-            hoodPiston.set_value(true);
-            pros::delay(1000);
+                chassis.setPose(12,26,90);
+                chassis.moveToPoint(49, 26, 500);
+                chassis.waitUntilDone();
+                chassis.turnToHeading(180, 500);
+                chassis.waitUntilDone();
+
+                intake_motor.move(127);
+                rTongue.set_value(true);
+
+                chassis.moveToPoint(49, 0, 500, {.maxSpeed = 60});
+                chassis.waitUntilDone();
+                left_drive.move_velocity(127);
+                right_drive.move_velocity(127);
+                pros::delay(800);
+                chassis.turnToPoint(49, 42, 500, {.forwards = false});
+                chassis.moveToPoint(49, 42, 1000, {.forwards = false});
+                rTongue.set_value(false);
+                chassis.waitUntilDone();
+                intake_hood_roller.move(127);
+                hoodPiston.set_value(true);
+                pros::delay(1500);
+                hoodPiston.set_value(false);
+                intake_hood_roller.move(0);
+                chassis.moveToPoint(49, 26, 500);
+                chassis.turnToPoint(27, 50, 500);
+                chassis.moveToPoint(27, 50, 1000, {.maxSpeed=75});
+                chassis.waitUntil(20);
+                rTongue.set_value(true);
+                chassis.waitUntilDone();
+                rTongue.set_value(false);
+                chassis.turnToPoint(-27, 50, 500);
+                chassis.moveToPoint(-27, 50, 1500, {.maxSpeed=75});
+                chassis.waitUntil(20);
+                rTongue.set_value(true);
+                chassis.waitUntilDone();
+                
 
 
-// sup
+
             break;
-
-//<<<<<<< HEAD
-//<<<<<<< HEAD
             case 9: 
 //.        skills
                 pros::lcd::print(1, "X %.2lf Y %.2lf",chassis.getPose().x, chassis.getPose().y);
@@ -832,9 +852,7 @@ void autonomous()
 void opcontrol() {
     while (true) {
 
-        bool isSkills = false;
-        bool midgoalActive = false;
-        bool intakeRunning = false;
+
 
         int leftY  = master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
         int rightX = master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X) / 1.1;
@@ -845,51 +863,44 @@ void opcontrol() {
         left_drive.move(driveForward + driveTurn);
         right_drive.move(driveForward - driveTurn);
 
-        // bool intakeRunning = false;
-        // int intakePower = 0;
-        // int hoodRollerPower = 0;
-        // bool midgoalActive = false;
+
         
 
         if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
-            // intakePower = 127;
-            // hoodRollerPower = -127;
-            // intakeRunning = true;
+
             intake_motor.move(127);
             intake_hood_roller.move(127);
-            intakeRunning = true;
         }
 
         else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
-            // intakePower = 127;
-            // intakeRunning = false;
+
             intake_motor.move(127);
             
             
         }
         else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L1)) {
-            // intakePower = -127;
-            // hoodRollerPower = 127;
-            // intakeRunning = false;
+
 
             intake_motor.move(-127);
             intake_hood_roller.move(-127);
-            hoodPiston.set_value(false);
+
 
         }
         else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_A)) {
             intake_motor.move(90);
             intake_hood_roller.move(-90);
-            midgoalActive = true;
+
+
+
         }
         else {
             intake_motor.move(0);
             intake_hood_roller.move(0);
-            midgoalActive = false;
-            intakeRunning = false;
+
         }
-        midgoalPiston.set_value(midgoalActive);
-        hoodPiston.set_value(intakeRunning);
+        midgoalPiston.set_value(master.get_digital(pros::E_CONTROLLER_DIGITAL_A));
+        hoodPiston.set_value(master.get_digital(pros::E_CONTROLLER_DIGITAL_R2));
+        rTongue.set_value(master.get_digital(pros::E_CONTROLLER_DIGITAL_A));
         // else if (!isSkills && master.get_digital(pros::E_CONTROLLER_DIGITAL_A)) {
         //     intakePower = 90;
         //     hoodRollerPower = 90;
