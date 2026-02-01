@@ -13,14 +13,8 @@ SRCDIR=$(ROOT)/src
 INCDIR=$(ROOT)/include
 
 WARNFLAGS+=
-# Optimization flags: only change when using 'make fast' for rapid development builds
-ifdef FAST_BUILD
-EXTRA_CFLAGS=-O0 -g0
-EXTRA_CXXFLAGS=-O0 -g0
-else
 EXTRA_CFLAGS=
 EXTRA_CXXFLAGS=
-endif
 
 # Set to 1 to enable hot/cold linking
 USE_PACKAGE:=1
@@ -46,40 +40,6 @@ EXCLUDE_SRC_FROM_LIB+=$(foreach file, $(SRCDIR)/main,$(foreach cext,$(CEXTS),$(f
 TEMPLATE_FILES=$(INCDIR)/$(LIBNAME)/*.h $(INCDIR)/$(LIBNAME)/*.hpp
 
 .DEFAULT_GOAL=quick
-
-# Enable parallel builds by default
-MAKEFLAGS += -j$(shell sysctl -n hw.ncpu)
-
-# Optional: Enable ccache if available (install with: brew install ccache)
-# ccache can speed up recompilation by caching previous compilations
-ifneq ($(shell which ccache 2>/dev/null),)
-    CC:=ccache $(CC)
-    CXX:=ccache $(CXX)
-endif
-
-# Fast build target with minimal optimization (use 'make fast' for development)
-.PHONY: fast
-fast:
-	$(MAKE) FAST_BUILD=1 $(DEFAULT_BIN)
-
-# Help target to show available build commands
-.PHONY: help
-help:
-	@echo "Available build targets:"
-	@echo "  make          - Standard build (default: -Os -g, parallel compilation)"
-	@echo "  make fast     - Fastest build with no optimization (-O0 -g0 for rapid iteration)"
-	@echo "  make all      - Clean build from scratch"
-	@echo "  make clean    - Remove all build artifacts"
-	@echo ""
-	@echo "Build optimizations enabled:"
-	@echo "  - Parallel compilation using $(shell sysctl -n hw.ncpu) CPU cores (SAFE)"
-	@echo "  - ccache support if installed (SAFE - run: brew install ccache)"
-	@echo "  - Incremental builds (only recompiles changed files)"
-	@echo ""
-	@echo "Performance tips:"
-	@echo "  - Default 'make' uses original safe flags (-Os -g)"
-	@echo "  - Use 'make fast' for 3x faster development iteration"
-	@echo "  - Parallel builds give ~4x speedup with no compromises"
 
 ################################################################################
 ################################################################################

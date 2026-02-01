@@ -609,11 +609,8 @@ void autonomous()
             pros::delay(1000);
 
 
-// sup
-            break;
 
-//<<<<<<< HEAD
-//<<<<<<< HEAD
+            break;
             case 9: 
 //.        skills
                 pros::lcd::print(1, "X %.2lf Y %.2lf",chassis.getPose().x, chassis.getPose().y);
