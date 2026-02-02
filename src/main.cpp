@@ -498,7 +498,7 @@ void autonomous()
     13 - enqueue test right| not tested
     14 - mcl test | not made
     */
-    int autonSelector = 9;
+    int autonSelector = 15;
     // chassis.setPose(estX, estY, estH * 180 / M_PI);
     Snacky.set_value(true);
     switch (autonSelector)
@@ -686,33 +686,71 @@ void autonomous()
             case 4:
             // elims right (4 ball descore)
                  chassis.setPose(12, 26, 90);
-                 chassis.moveToPoint(49, 26,1000);
-                 chassis.turnToHeading(180,1000);
+                 Snacky.set_value(true);
+                 chassis.moveToPoint(49, 26,950);
+                 chassis.turnToHeading(180,950);
                  rTongue.set_value(true);
-                 chassis.moveToPoint(49, 0,1200, {.maxSpeed=75});
+                 chassis.moveToPoint(48, 0,900, {.maxSpeed=75});
                  intake_motor.move(127);
                  left_drive.move_velocity(127);
                  right_drive.move_velocity(127);
-                 pros::delay(200);
+                 pros::delay(300);
                  left_drive.move_velocity(0);
                  right_drive.move_velocity(0);
-                 chassis.turnToPoint(46, 44,750, {.forwards = false});
-                 chassis.moveToPoint(46, 44,1000, {.forwards = false});
+                 chassis.turnToPoint(47, 46,950, {.forwards = false});
+                 chassis.moveToPoint(47, 46,950, {.forwards = false});
                  rTongue.set_value(false);
                  chassis.waitUntilDone();
                  intake_hood_roller.move(127);
                  hoodPiston.set_value(true);
                  pros::delay(1500);
-                 chassis.moveToPoint(46, 20, 1000);
+                 hoodPiston.set_value(false);
+                 intake_hood_roller.move(0);
+                 intake_motor.move(0);
+                 chassis.moveToPoint(chassis.getPose().x, chassis.getPose().y - 10, 500);
+                 rTongue.set_value(false);
+                 chassis.turnToHeading(90,500);
+                 chassis.moveToPoint(64.3,34,1000);
                  chassis.waitUntilDone();
-                 chassis.turnToPoint(40,37, 500);
+                 chassis.turnToHeading(-180,500);
+                 chassis.moveToPoint(chassis.getPose().x, chassis.getPose().y + 20, 2000, {.forwards = false});
+                 Snacky.set_value(false);
+
+            break;     
+            case 15:
+                 chassis.setPose(12, 26, 0);
+                 Snacky.set_value(true);
+                 intake_motor.move(127);
+                 chassis.moveToPoint(24, 48,950);
+                 chassis.moveToPoint(49, 26,950);
+                 chassis.turnToHeading(180,950);
+                 rTongue.set_value(true);
+                 chassis.moveToPoint(48, 0,900, {.maxSpeed=75});
+                 intake_motor.move(127);
+                 left_drive.move_velocity(127);
+                 right_drive.move_velocity(127);
+                 pros::delay(300);
+                 left_drive.move_velocity(0);
+                 right_drive.move_velocity(0);
+                 chassis.turnToPoint(47, 46,950, {.forwards = false});
+                 chassis.moveToPoint(47, 46,950, {.forwards = false});
+                 rTongue.set_value(false);
                  chassis.waitUntilDone();
-                 chassis.moveToPoint(40, 37, 1000);
-                   
-                 
-
-                  
-
+                 intake_hood_roller.move(127);
+                 hoodPiston.set_value(true);
+                 pros::delay(1500);
+                 hoodPiston.set_value(false);
+                 intake_hood_roller.move(0);
+                 intake_motor.move(0);
+                 chassis.moveToPoint(chassis.getPose().x, chassis.getPose().y - 10, 500);
+                 rTongue.set_value(false);
+                 chassis.turnToHeading(90,500);
+                 chassis.moveToPoint(64.3,34,1000);
+                 chassis.waitUntilDone();
+                 chassis.turnToHeading(-180,500);
+                 chassis.moveToPoint(chassis.getPose().x, chassis.getPose().y + 20, 2000, {.forwards = false});
+                 Snacky.set_value(false);    
+            break;
             case 7:
             //left sig swap
             chassis.setPose(-12,26,0);
@@ -842,13 +880,6 @@ void autonomous()
 
             break;
                     
-                    
-        
-                
-
-              
-
-
 
 
             case 10:
