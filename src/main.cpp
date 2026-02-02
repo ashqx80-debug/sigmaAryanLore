@@ -464,7 +464,7 @@ void initialize()
     chassis.setBrakeMode(pros::E_MOTOR_BRAKE_COAST);
     pros::lcd::initialize();
     chassis.calibrate();
-    // pros::delay(500);
+    pros::delay(1000);
 
     // if (ENABLE_MCL)
     // {
@@ -472,12 +472,12 @@ void initialize()
     //     pros::Task(mclTask, nullptr);
     // }
 
-   //pros::Task(mechTask, nullptr);
+   //pros::Task(mechTask, nullptr);,
 }
 
 double expo(double normalizedInput) {
     normalizedInput = pow(normalizedInput, 3);
-    return (normalizedInput / 18500);
+    return (normalizedInput / 15000);
 }
 
 void autonomous()
@@ -789,31 +789,32 @@ void autonomous()
             chassis.moveToPoint(48, 15, 500);
             chassis.waitUntilDone();
 
-            chassis.turnToPoint(57, 37, 500, {.forwards = false});
+            chassis.turnToPoint(57.5, 45, 500, {.forwards = false});
             rTongue.set_value(false);
             chassis.waitUntilDone();
 
             intake_motor.move(0);
-            chassis.moveToPoint(57, 37, 1500, {.forwards = false, .maxSpeed = 65});
+            chassis.moveToPoint(57.5, 45, 1500, {.forwards = false, .maxSpeed = 65});
             chassis.waitUntilDone();
+            chassis.turnToHeading(180, 500);
             
-            moveF(100, false, true, 100, 15, 3000);           
+            moveF(50, false, true, 65, 15, 3000);     
            
             imu.reset();
             pros::delay(2500);
             enc_vertical.reset_position();
             pros::delay(2500);
 
-            chassis.setPose(58, 105, 180);
+            chassis.setPose(58, 110, 180);
             chassis.turnToHeading(270, 1000);
 
-            chassis.moveToPoint(40, 105, 1500);
+            chassis.moveToPoint(40, 110, 1500);
             chassis.waitUntilDone();
 
             chassis.turnToHeading(0, 1000);
             pros::delay(1500);
 
-            chassis.moveToPoint(40, 96, 1500, {.forwards = false});
+            chassis.moveToPoint(45, 94, 1500, {.forwards = false});
             chassis.waitUntilDone();
 
             intake_motor.move(127);
@@ -832,7 +833,7 @@ void autonomous()
             right_drive.move_velocity(127);
             pros::delay(1600);
 
-            chassis.moveToPoint(45, 100, 1000, {.forwards = false});
+            chassis.moveToPoint(42, 94, 1000, {.forwards = false});
             chassis.waitUntilDone();
 
             intake_hood_roller.move(127);
@@ -1035,9 +1036,8 @@ void opcontrol() {
             intake_hood_roller.move(0);
 
         }
-        midgoalPiston.set_value(master.get_digital(pros::E_CONTROLLER_DIGITAL_A));
         hoodPiston.set_value(master.get_digital(pros::E_CONTROLLER_DIGITAL_R2));
-        rTongue.set_value(master.get_digital(pros::E_CONTROLLER_DIGITAL_A));
+        midgoalPiston.set_value(master.get_digital(pros::E_CONTROLLER_DIGITAL_A));
         // else if (!isSkills && master.get_digital(pros::E_CONTROLLER_DIGITAL_A)) {
         //     intakePower = 90;
         //     hoodRollerPower = 90;
