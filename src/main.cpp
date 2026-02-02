@@ -591,7 +591,7 @@ void initialize()
     chassis.setBrakeMode(pros::E_MOTOR_BRAKE_COAST);
     pros::lcd::initialize();
     chassis.calibrate();
-    // pros::delay(500);
+    pros::delay(1000);
 
     // if (ENABLE_MCL)
     // {
@@ -625,7 +625,7 @@ void autonomous()
     13 - enqueue test right| not tested
     14 - mcl test | not made
     */
-    int autonSelector = 15;
+    int autonSelector = 4;
     // chassis.setPose(estX, estY, estH * 180 / M_PI);
     Snacky.set_value(true);
     switch (autonSelector)
