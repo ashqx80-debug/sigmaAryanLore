@@ -393,7 +393,7 @@ void autonomous()
     13 - enqueue test right| not tested
     14 - mcl test | not made
     */
-    int autonSelector = 2;
+    int autonSelector = 4;
     // chassis.setPose(estX, estY, estH * 180 / M_PI);
     Snacky.set_value(true);
     switch (autonSelector)
@@ -576,14 +576,37 @@ void autonomous()
             hoodPiston.set_value(false);
             intake_hood_roller.move(0);
             intake_motor.move(0);
-            //     chassis.setPose(12, 26, 0);
-            //     chassis.moveToPoint(47, 26,1000);
-            //     chassis.turnToHeading(182,1000);
-            //     rTongue.set_value(true);
-            //     intake_motor.move(127);
-            //     pros::delay(800);
-            //     chassis.moveToPoint(47, 0,1200, {.maxSpeed=75});
+                 
             break;
+            case 4:
+            // elims right (4 ball descore)
+                 chassis.setPose(12, 26, 90);
+                 chassis.moveToPoint(49, 26,1000);
+                 chassis.turnToHeading(180,1000);
+                 rTongue.set_value(true);
+                 chassis.moveToPoint(49, 0,1200, {.maxSpeed=75});
+                 intake_motor.move(127);
+                 left_drive.move_velocity(127);
+                 right_drive.move_velocity(127);
+                 pros::delay(200);
+                 left_drive.move_velocity(0);
+                 right_drive.move_velocity(0);
+                 chassis.turnToPoint(46, 44,750, {.forwards = false});
+                 chassis.moveToPoint(46, 44,1000, {.forwards = false});
+                 rTongue.set_value(false);
+                 chassis.waitUntilDone();
+                 intake_hood_roller.move(127);
+                 hoodPiston.set_value(true);
+                 pros::delay(1500);
+                 chassis.moveToPoint(46, 20, 1000);
+                 chassis.waitUntilDone();
+                 chassis.turnToPoint(40,37, 500);
+                 chassis.waitUntilDone();
+                 chassis.moveToPoint(40, 37, 1000);
+                   
+                 
+
+                  
 
             case 7:
             //left sig swap
@@ -593,9 +616,10 @@ void autonomous()
 
             case 8:
             //right sig swap
-                chassis.setPose(12,26,90);
-                chassis.moveToPoint(49, 26, 500);
+                chassis.setPose(12,26,0);
+                chassis.moveToPoint(49, 26, 1500);
                 chassis.waitUntilDone();
+                pros::delay(500);
                 chassis.turnToHeading(180, 500);
                 chassis.waitUntilDone();
 
@@ -666,13 +690,14 @@ void autonomous()
                 //int dist_ref = intake_dist.get();
                 //int valid_count = 0;
 
-                chassis.moveToPoint(58, 105, 2000, {.forwards = false, .maxSpeed = 65});
+                intake_dist.get();
+
                 chassis.waitUntilDone();
                 imu.reset();
                 pros::delay(2500);
                 enc_vertical.reset_position();
                 pros::delay(2500);
-                chassis.setPose(58, 105, 180);
+                chassis.setPose(58, 110, 180);
                 chassis.turnToHeading(270, 1000);
                 
                 
