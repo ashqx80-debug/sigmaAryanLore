@@ -797,6 +797,7 @@ void autonomous()
             chassis.moveToPoint(57, 37, 1500, {.forwards = false, .maxSpeed = 65});
             chassis.waitUntilDone();
             
+            moveF(100, false, true, 100, 15, 3000);           
            
             imu.reset();
             pros::delay(2500);
