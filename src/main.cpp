@@ -9,6 +9,13 @@
 #include "pros/motors.h"
 #include "pros/rtos.hpp"
 #include <numeric>
+#include <cmath>
+#include <iostream>
+#include "distance.h"
+
+
+
+
 // #include <vector>
 // #include <random>
 // #include <cmath>
@@ -37,7 +44,7 @@ lemlib::Drivetrain drivetrain(&left_drive, &right_drive, 11, lemlib::Omniwheel::
 pros::Imu imu(1);
 pros::Rotation enc_vertical(-2);
 pros::Rotation enc_horizontal(-22);
-pros::Distance  intake_dist(21);
+pros::Distance  intake_dist(11);
 
 lemlib::TrackingWheel vertTW(&enc_vertical, lemlib::Omniwheel::NEW_275, 0.5);
 lemlib::TrackingWheel horzTW(&enc_horizontal, lemlib::Omniwheel::NEW_2, -5.75);
@@ -263,6 +270,104 @@ lemlib::Chassis chassis(drivetrain, lateral, angular, odomSensors);
 //     }
 // }
 
+void moveF(double distance, bool forwards, bool decreasing, int maxSpeed, int minSpeed, int timeOutMs) {
+    // PID constants - tune these for optimal performance
+    const double kP = 0.22;  // Proportional gain
+    const double kD = 0.525;  // Derivative gain
+    const double tolerance = 5.0;  // Distance tolerance in mm
+    const int settleTime = 100;  // Time to stay within tolerance before exiting (ms)
+    
+    // Error tracking
+    double prevError = 0;
+    double error = 0;
+    uint32_t startTime = pros::millis();
+    uint32_t settleStartTime = 0;
+    bool isSettled = false;
+    
+    while (true) {
+        // Check timeout
+        if (pros::millis() - startTime > timeOutMs) {
+            break;
+        }
+        
+        // Read current distance from front sensor
+        int32_t currentDistance = intake_dist.get();
+        
+        // If sensor returns error or max reading, stop
+        if (currentDistance == PROS_ERR || currentDistance >= 9999) {
+            std::cout << "Front distance sensor error or no object detected" << std::endl;
+            break;
+        }
+        
+        // Calculate error based on whether we want distance to decrease or increase
+        if (decreasing) {
+            error = currentDistance - distance;  // Positive error means we need to move closer
+        } else {
+            error = distance - currentDistance;  // Positive error means we need to move away
+        }
+        
+        // Check if we're within tolerance
+        if (std::abs(error) <= tolerance) {
+            if (!isSettled) {
+                settleStartTime = pros::millis();
+                isSettled = true;
+            } else if (pros::millis() - settleStartTime >= settleTime) {
+                // Successfully settled at target distance
+                break;
+            }
+        } else {
+            isSettled = false;
+        }
+        
+        // Calculate derivative
+        double derivative = error - prevError;
+        
+        // Calculate motor power using PD control
+        double motorPower = (kP * error) + (kD * derivative);
+        
+        // Clamp motor power to maxSpeed
+        if (motorPower > maxSpeed) {
+            motorPower = maxSpeed;
+        } else if (motorPower < -maxSpeed) {
+            motorPower = -maxSpeed;
+        }
+        
+        // Apply minimum power threshold to overcome static friction
+        int effectiveMinSpeed = (minSpeed > 0) ? minSpeed : 15;
+        if (std::abs(motorPower) > 0 && std::abs(motorPower) < effectiveMinSpeed) {
+            motorPower = (motorPower > 0) ? effectiveMinSpeed : -effectiveMinSpeed;
+        }
+        
+        // Determine motor direction based on forwards parameter
+        // If forwards is true and we have positive error (need to move), motors go forward
+        // If forwards is false, invert the motor power
+        int finalMotorPower = forwards ? motorPower : -motorPower;
+        
+        // Move motors
+        left_drive.move(finalMotorPower);
+        right_drive.move(finalMotorPower);
+        
+        // Update previous error for next iteration
+        prevError = error;
+        
+        // Debug output
+        std::cout << "Front Distance: " << currentDistance << "mm, Target: " << distance 
+                  << "mm, Error: " << error << "mm, Power: " << finalMotorPower << std::endl;
+        
+        // Small delay for loop timing
+        pros::delay(20);
+    }
+    
+    // Stop motors when done
+    left_drive.move(0);
+    right_drive.move(0);
+    
+    std::cout << "moveF complete" << std::endl;
+}
+
+
+
+
 struct MechAction
 {
     enum Type
@@ -393,7 +498,7 @@ void autonomous()
     13 - enqueue test right| not tested
     14 - mcl test | not made
     */
-    int autonSelector = 4;
+    int autonSelector = 9;
     // chassis.setPose(estX, estY, estH * 180 / M_PI);
     Snacky.set_value(true);
     switch (autonSelector)
@@ -657,7 +762,7 @@ void autonomous()
 
 
             break;
-            case 9: {
+            case 9:
          // -------- SKILLS --------
             pros::lcd::print(1, "X %.2lf Y %.2lf", chassis.getPose().x, chassis.getPose().y);
             pros::lcd::print(2, "H %.2lf", imu.get_heading());
@@ -691,41 +796,8 @@ void autonomous()
             intake_motor.move(0);
             chassis.moveToPoint(57, 37, 1500, {.forwards = false, .maxSpeed = 65});
             chassis.waitUntilDone();
-
-            // ===== LONG TRAVEL =====
-            chassis.moveToPoint(58, 105, 2000, {.forwards = false, .maxSpeed = 65});
-            chassis.waitUntil(15); // slow near end
-
-            // ===== INLINE DISTANCE RESET =====
-            left_drive.move_velocity(-30);
-            right_drive.move_velocity(-30);
-
-            int start = pros::millis();
-            while (pros::millis() - start < 1500) {
-                double dist_in = intake_dist.get() / 25.4; // mm → inches
-
-                pros::lcd::print(6, "Dist %.2f", dist_in);
-
-                if (dist_in > 2 && dist_in < 70 && fabs(dist_in - 3.0) < 0.5) {
-                    left_drive.move(0);
-                    right_drive.move(0);
-
-                    lemlib::Pose p = chassis.getPose();
-
-                    // Facing 180°, front sensor points toward -Y wall
-                    double newY = 108 + dist_in;  // 🔴 wall Y coordinate
-
-                    chassis.setPose(p.x, newY, 180);
-                    break;
-                }
-
-                pros::delay(10);
-            }
-
-            left_drive.move(0);
-            right_drive.move(0);
-            // ===== END DISTANCE RESET =====
-
+            
+           
             imu.reset();
             pros::delay(2500);
             enc_vertical.reset_position();
@@ -734,13 +806,13 @@ void autonomous()
             chassis.setPose(58, 105, 180);
             chassis.turnToHeading(270, 1000);
 
-            chassis.moveToPoint(45, 105, 1500);
+            chassis.moveToPoint(40, 105, 1500);
             chassis.waitUntilDone();
 
             chassis.turnToHeading(0, 1000);
             pros::delay(1500);
 
-            chassis.moveToPoint(45, 100, 1500, {.forwards = false});
+            chassis.moveToPoint(40, 96, 1500, {.forwards = false});
             chassis.waitUntilDone();
 
             intake_motor.move(127);
@@ -752,7 +824,7 @@ void autonomous()
             hoodPiston.set_value(false);
             intake_hood_roller.move(0);
 
-            chassis.moveToPoint(45, 144, 500, {.maxSpeed = 75});
+            chassis.moveToPoint(40, 144, 500, {.maxSpeed = 75});
             chassis.waitUntilDone();
 
             left_drive.move_velocity(127);
@@ -769,7 +841,7 @@ void autonomous()
             break;
                     
                     
-        }
+        
                 
 
               
