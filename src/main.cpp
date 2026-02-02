@@ -658,7 +658,7 @@ void autonomous()
 
             break;
             case 9: {
-        // -------- SKILLS --------
+         // -------- SKILLS --------
             pros::lcd::print(1, "X %.2lf Y %.2lf", chassis.getPose().x, chassis.getPose().y);
             pros::lcd::print(2, "H %.2lf", imu.get_heading());
 
@@ -692,30 +692,61 @@ void autonomous()
             chassis.moveToPoint(57, 37, 1500, {.forwards = false, .maxSpeed = 65});
             chassis.waitUntilDone();
 
-                //int dist_ref = intake_dist.get();
-                //int valid_count = 0;
+            // ===== LONG TRAVEL =====
+            chassis.moveToPoint(58, 105, 2000, {.forwards = false, .maxSpeed = 65});
+            chassis.waitUntil(15); // slow near end
 
-                intake_dist.get();
+            // ===== INLINE DISTANCE RESET =====
+            left_drive.move_velocity(-30);
+            right_drive.move_velocity(-30);
 
-                chassis.waitUntilDone();
-                imu.reset();
-                pros::delay(2500);
-                enc_vertical.reset_position();
-                pros::delay(2500);
-                chassis.setPose(58, 110, 180);
-                chassis.turnToHeading(270, 1000);
-                
-                
-                chassis.moveToPoint(45, 105, 1500);
-                chassis.waitUntilDone();
-                chassis.turnToHeading(0, 1000);
-                pros::delay(1500);
-                chassis.moveToPoint(45, 100, 1500, {.forwards = false});
-                chassis.waitUntilDone();
-                intake_motor.move(127);
-                intake_hood_roller.move(127);
-                hoodPiston.set_value(true);
-                pros::delay(2500);
+            int start = pros::millis();
+            while (pros::millis() - start < 1500) {
+                double dist_in = intake_dist.get() / 25.4; // mm → inches
+
+                pros::lcd::print(6, "Dist %.2f", dist_in);
+
+                if (dist_in > 2 && dist_in < 70 && fabs(dist_in - 3.0) < 0.5) {
+                    left_drive.move(0);
+                    right_drive.move(0);
+
+                    lemlib::Pose p = chassis.getPose();
+
+                    // Facing 180°, front sensor points toward -Y wall
+                    double newY = 108 + dist_in;  // 🔴 wall Y coordinate
+
+                    chassis.setPose(p.x, newY, 180);
+                    break;
+                }
+
+                pros::delay(10);
+            }
+
+            left_drive.move(0);
+            right_drive.move(0);
+            // ===== END DISTANCE RESET =====
+
+            imu.reset();
+            pros::delay(2500);
+            enc_vertical.reset_position();
+            pros::delay(2500);
+
+            chassis.setPose(58, 105, 180);
+            chassis.turnToHeading(270, 1000);
+
+            chassis.moveToPoint(45, 105, 1500);
+            chassis.waitUntilDone();
+
+            chassis.turnToHeading(0, 1000);
+            pros::delay(1500);
+
+            chassis.moveToPoint(45, 100, 1500, {.forwards = false});
+            chassis.waitUntilDone();
+
+            intake_motor.move(127);
+            intake_hood_roller.move(127);
+            hoodPiston.set_value(true);
+            pros::delay(2500);
 
             rTongue.set_value(true);
             hoodPiston.set_value(false);
@@ -736,6 +767,7 @@ void autonomous()
             pros::delay(1500);
 
             break;
+                    
                     
         }
                 
