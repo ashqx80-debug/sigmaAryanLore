@@ -608,6 +608,34 @@ double expo(double normalizedInput) {
     normalizedInput = pow(normalizedInput, 3);
     return (normalizedInput / 12500);
 }
+bool colorSortBlue(int driveSpeed, int intakeSpeed, int timeoutMs) {
+    color.set_led_pwm(100);
+
+    left_drive.move_velocity(driveSpeed);
+    right_drive.move_velocity(driveSpeed);
+    intake_motor.move(intakeSpeed);
+
+    uint32_t start = pros::millis();
+
+    while (pros::millis() - start < timeoutMs) {
+        if (color.get_proximity() > 80) {   // VERY important
+            int hue = color.get_hue();
+
+            if (hue > 180 && hue < 250) {
+                left_drive.move_velocity(0);
+                right_drive.move_velocity(0);
+                intake_motor.move(0);
+                return true; // correct color found
+            }
+        }
+        pros::delay(10);
+    }
+
+    left_drive.move_velocity(0);
+    right_drive.move_velocity(0);
+    intake_motor.move(0);
+    return false; // timeout
+}
 
 void autonomous()
 {
@@ -813,7 +841,7 @@ void autonomous()
                  
             break;
     
-            case 15: {
+            case 15: 
                 //right 4 ball rush
                 chassis.setPose(12, 26, 90);
                 Snacky.set_value(true);
@@ -827,33 +855,11 @@ void autonomous()
 
                 chassis.moveToPoint(48, 0, 900, {.maxSpeed = 75});
 
-                color.set_led_pwm(100);
+                colorSortBlue(127, 127, 5000);
 
                 left_drive.move_velocity(127);
                 right_drive.move_velocity(127);
                 intake_motor.move(127);
-
-                uint32_t startTime = pros::millis();
-                const int timeout = 1500;
-
-                while (true) {
-                    int hue = color.get_hue();
-
-                    if (hue > 180 && hue < 250) {
-                        intake_motor.move(0);
-                        left_drive.move_velocity(0);
-                        right_drive.move_velocity(0);
-                        break;
-                    }
-
-                    if (pros::millis() - startTime > timeout) {
-                        left_drive.move_velocity(0);
-                        right_drive.move_velocity(0);
-                        break;
-                    }
-
-                    pros::delay(10);
-                }
 
                 chassis.turnToPoint(47, 46, 950, {.forwards = false});
                 chassis.moveToPoint(47, 46, 950, {.forwards = false});
@@ -880,7 +886,7 @@ void autonomous()
 
                 Snacky.set_value(false);
                 break;
-                }    
+                   
         case 7:
             //left sig swap
             chassis.setPose(-12,26,0);
@@ -1161,6 +1167,7 @@ void opcontrol() {
 
         left_drive.move(driveForward + driveTurn);
         right_drive.move(driveForward - driveTurn);
+      
 
 
         
@@ -1229,6 +1236,8 @@ void opcontrol() {
         //pros::lcd::print(0, "X %.1f Y %.1f H %.1f", estX, estY, estH * 180 / M_PI);
         pros::lcd::print(1, "X %.2lf Y %.2lf",chassis.getPose().x, chassis.getPose().y);
         pros::lcd::print(2, "H %.2lf", imu.get_heading());
+        pros::lcd::print(3, "Hue: %d", color.get_hue());
+        pros::lcd::print(4, "Prox: %d", color.get_proximity());
 
 
 
