@@ -606,7 +606,7 @@ void initialize()
 
 double expo(double normalizedInput) {
     normalizedInput = pow(normalizedInput, 3);
-    return (normalizedInput / 15000);
+    return (normalizedInput / 12500);
 }
 
 void autonomous()
@@ -627,7 +627,7 @@ void autonomous()
     13 - enqueue test right| not tested
     14 - mcl test | not made
     */
-    int autonSelector = 4;
+    int autonSelector = 15;
     // chassis.setPose(estX, estY, estH * 180 / M_PI);
     Snacky.set_value(true);
     switch (autonSelector)
