@@ -498,7 +498,7 @@ void autonomous()
     13 - enqueue test right| not tested
     14 - mcl test | not made
     */
-    int autonSelector = 15;
+    int autonSelector = 8;
     // chassis.setPose(estX, estY, estH * 180 / M_PI);
     Snacky.set_value(true);
     switch (autonSelector)
@@ -728,15 +728,15 @@ void autonomous()
                  chassis.moveToPoint(49.4, 26,950);
                  chassis.turnToHeading(180,950);
                  
-                 chassis.moveToPoint(48, 0,900, {.maxSpeed=75});
+                 chassis.moveToPoint(48.5, 0,900, {.maxSpeed=75});
                  intake_motor.move(127);
                  left_drive.move_velocity(127);
                  right_drive.move_velocity(127);
                  pros::delay(300);
                  left_drive.move_velocity(0);
                  right_drive.move_velocity(0);
-                 chassis.turnToPoint(47, 46,950, {.forwards = false});
-                 chassis.moveToPoint(47, 46,950, {.forwards = false, .maxSpeed=85});
+                 chassis.turnToPoint(46.5, 46,950, {.forwards = false});
+                 chassis.moveToPoint(46.5, 46,950, {.forwards = false, .maxSpeed=85});
                  rTongue.set_value(false);
                  chassis.waitUntilDone();
                  intake_hood_roller.move(100);
@@ -748,14 +748,14 @@ void autonomous()
                  hoodPiston.set_value(false);
                  intake_hood_roller.move(0);
                  intake_motor.move(0);
-                 chassis.moveToPoint(chassis.getPose().x, chassis.getPose().y - 7, 500);
+                 chassis.moveToPoint(chassis.getPose().x, chassis.getPose().y - 10, 500);
                  rTongue.set_value(false);
                  chassis.turnToHeading(90,500);
-                 chassis.moveToPoint(60.3,34,1000);
+                 chassis.moveToPoint(64.3,34,1000);
                  chassis.waitUntilDone();
                  chassis.turnToHeading(-180,500);
                  Snacky.set_value(false);  
-                 chassis.moveToPoint(chassis.getPose().x-4, chassis.getPose().y + 10, 2000, {.forwards = false});
+                 chassis.moveToPoint(chassis.getPose().x-5, chassis.getPose().y + 10, 2000, {.forwards = false});
                    
             break;
             case 7:
@@ -767,7 +767,7 @@ void autonomous()
             case 8:
             //right sig swap
                 chassis.setPose(12,26,90);
-                chassis.moveToPoint(48, 26, 1000);
+                chassis.moveToPoint(48.5, 26, 900);
                 chassis.waitUntilDone();
 
                 chassis.turnToHeading(180, 350);
@@ -780,56 +780,57 @@ void autonomous()
                 chassis.waitUntilDone();
                 left_drive.move_velocity(127);
                 right_drive.move_velocity(127);
-                pros::delay(500);
+                pros::delay(450);
                 chassis.turnToPoint(47, 43, 500, {.forwards = false});
                 chassis.moveToPoint(47, 43, 750, {.forwards = false, .maxSpeed = 85});
                 rTongue.set_value(false);
                 chassis.waitUntilDone();
-                intake_hood_roller.move(100);
+                intake_hood_roller.move(95);
                 hoodPiston.set_value(true);
-                pros::delay(1000);
+                pros::delay(900);
                 hoodPiston.set_value(false);
                 intake_hood_roller.move(0);
-                chassis.moveToPoint(49, 20, 500);
+                chassis.moveToPoint(49, 26, 350);
                 chassis.waitUntilDone();
-                chassis.turnToPoint(25, 51, 300);
-                chassis.moveToPoint(25, 51, 1000, {.maxSpeed=85});
+                chassis.turnToPoint(25, 51, 200);
+                chassis.moveToPoint(25, 51, 700, {.maxSpeed=90});
                 chassis.waitUntilDone();
                 rTongue.set_value(false);
-                chassis.turnToPoint(-13, 58, 200);
-                chassis.moveToPoint(-30, 51, 700, { .maxSpeed=85});
+                chassis.moveToPoint(-30, 51, 950);
                 chassis.waitUntilDone();
                 rTongue.set_value(true);
                 intake_motor.move(80);
-                chassis.turnToPoint(-13, 58, 500, {.forwards = false});
-                chassis.moveToPoint(-13, 58, 750, {.forwards = false});
+                chassis.turnToPoint(chassis.getPose().x+5, chassis.getPose().y+6, 350, {.forwards = false});
+                chassis.moveToPoint(chassis.getPose().x+5, chassis.getPose().y+6, 650, {.forwards = false});
                 chassis.waitUntilDone();
                 midgoalPiston.set_value(true);
                 left_drive.move_velocity(-40);
                 right_drive.move_velocity(-40);
                 intake_hood_roller.move(-90);
                 intake_motor.move(-80);
-                pros::delay(250);
+                pros::delay(125);
                 left_drive.move_velocity(0);
                 right_drive.move_velocity(0);
-                intake_motor.move(80);
-                pros::delay(500);
+                intake_motor.move(127);
+                pros::delay(250);
+                intake_motor.move(-80);
+                pros::delay(125);
                 intake_motor.move(80);
                 pros::delay(1200);
                 intake_motor.move(0);
                 intake_hood_roller.move(0);
                 midgoalPiston.set_value(false);
-                chassis.turnToPoint(chassis.getPose().x-45, chassis.getPose().y - 31, 100);
-                chassis.moveToPoint(chassis.getPose().x-45, chassis.getPose().y - 31, 750);
+                chassis.turnToPoint(chassis.getPose().x-55.5, chassis.getPose().y - 50, 100);
+                chassis.moveToPoint(chassis.getPose().x-55.5, chassis.getPose().y - 50, 900);
                 chassis.waitUntilDone();
                 chassis.turnToHeading(180, 200);
-                chassis.moveToPoint(chassis.getPose().x, chassis.getPose().y -35, 500, {.maxSpeed=75});
+                chassis.moveToPoint(chassis.getPose().x, chassis.getPose().y -38, 600, {.maxSpeed=95});
                 chassis.waitUntilDone();
                 intake_motor.move(127);
                 left_drive.move_velocity(127);
                 right_drive.move_velocity(127);
-                pros::delay(300);
-                chassis.moveToPoint(chassis.getPose().x, chassis.getPose().y +42, 700, {.forwards = false, .maxSpeed=85 });
+                pros::delay(600);
+                chassis.moveToPoint(chassis.getPose().x, chassis.getPose().y +40, 700, {.forwards = false, .maxSpeed=85 });
                 chassis.waitUntilDone();
                 hoodPiston.set_value(true);
                 intake_hood_roller.move(127);
@@ -848,7 +849,7 @@ void autonomous()
 
             chassis.setPose(12, 26, 90);
 
-            chassis.moveToPoint(49, 26, 1500);
+            chassis.moveToPoint(49.5, 26, 1500);
             chassis.waitUntilDone();
             pros::delay(500);
 
@@ -877,7 +878,7 @@ void autonomous()
             chassis.waitUntilDone();
             chassis.turnToHeading(180, 500);
             
-            moveF(50, false, true, 65, 15, 3000);     
+            chassis.moveToPoint(chassis.getPose().x, chassis.getPose().y+60, 1000, {.maxSpeed = 75});
            
             imu.reset();
             pros::delay(2500);
