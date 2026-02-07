@@ -789,8 +789,8 @@ void autonomous()
                 chassis.waitUntilDone();
                 rTongue.set_value(true); //checkpoint 6
                 intake_motor.move(80);
-                chassis.turnToPoint(chassis.getPose().x+6.3    , chassis.getPose().y+6, 350, {.forwards = false});
-                chassis.moveToPoint(chassis.getPose().x+6.3, chassis.getPose().y+6, 650, {.forwards = false});
+                chassis.turnToPoint(chassis.getPose().x+11.3    , chassis.getPose().y+6, 350, {.forwards = false});
+                chassis.moveToPoint(chassis.getPose().x+11.3, chassis.getPose().y+6, 650, {.forwards = false});
                 chassis.waitUntilDone(); //scores midgoal, checkpoint 7
                 midgoalPiston.set_value(true);
                 left_drive.move_velocity(-40);
