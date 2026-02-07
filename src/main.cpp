@@ -50,12 +50,12 @@ pros::Rotation enc_vertical(-2);
 pros::Rotation enc_horizontal(-22);
 pros::Distance  intake_dist(11);
 
-lemlib::TrackingWheel vertTW(&enc_vertical, lemlib::Omniwheel::NEW_275, 0.5);
+lemlib::TrackingWheel vertTW(&enc_vertical, lemlib::Omniwheel::NEW_275, -0.25);
 lemlib::TrackingWheel horzTW(&enc_horizontal, lemlib::Omniwheel::NEW_2, -5.75);
 
 lemlib::OdomSensors odomSensors(&vertTW, nullptr, &horzTW, nullptr, &imu);
 
-lemlib::ControllerSettings lateral(5, 0.0001, 21, 3, 3, 1, 3, 100, 20);
+lemlib::ControllerSettings lateral(5.5, 0.0001, 22, 3, 3, 1, 3, 100, 20);
 lemlib::ControllerSettings angular(2.9, 0.0001, 26, 0, 0, 0, 0, 0, 0);
 
 lemlib::Chassis chassis(drivetrain, lateral, angular, odomSensors);
@@ -488,7 +488,7 @@ void mechTask(void *)
 }
 void initialize()
 {
-    chassis.setBrakeMode(pros::E_MOTOR_BRAKE_COAST);
+    chassis.setBrakeMode(pros::E_MOTOR_BRAKE_HOLD);
     pros::lcd::initialize();
     chassis.calibrate();
     pros::delay(1000);
@@ -502,7 +502,7 @@ void initialize()
     //     pros::Task(mclTask, nullptr);
     // }
 
-   //pros::Task(mechTask, nullptr);,
+   //pros::Task(mechTask, nullptr);
 }
 
 double expo(double normalizedInput) {
@@ -531,7 +531,7 @@ void autonomous()
     13 - enqueue test right| not tested
     14 - mcl test | not made
     */
-    int autonSelector = 8;
+    int autonSelector = 11;
     // chassis.setPose(estX, estY, estH * 180 / M_PI);
     Snacky.set_value(true);
     switch (autonSelector)
@@ -821,8 +821,8 @@ void autonomous()
 
                 chassis.moveToPoint(47.5, 0, 900, {.maxSpeed = 75});
                 chassis.waitUntilDone(); //checkpoint 2
-                left_drive.move_velocity(127);
-                right_drive.move_velocity(127); // matchload
+                left_drive.move_velocity(90);
+                right_drive.move_velocity(90); // matchload
                 pros::delay(400);
                 chassis.turnToHeading(180, 400);
                 chassis.moveToPoint(chassis.getPose().x-2.5, chassis.getPose().y + 40, 820, {.forwards = false, .maxSpeed = 70});
@@ -879,20 +879,20 @@ void autonomous()
                 chassis.moveToPoint(chassis.getPose().x-44, chassis.getPose().y - 52, 900); 
                 chassis.waitUntilDone(); //checkpoint 8
                 chassis.turnToHeading(180, 200);
-                chassis.moveToPoint(chassis.getPose().x+2.5, chassis.getPose().y -40, 680, {.maxSpeed=75});
+                chassis.moveToPoint(chassis.getPose().x+1.5, chassis.getPose().y -40, 680, {.maxSpeed=75});
                 chassis.waitUntilDone(); //checkpoint 9
                 intake_motor.move(127);
                 intakeSpin = true;
-                left_drive.move_velocity(127);
-                right_drive.move_velocity(127);
+                left_drive.move_velocity(90);
+                right_drive.move_velocity(90);
                 pros::delay(500);
-                chassis.moveToPoint(chassis.getPose().x-1.5, chassis.getPose().y +39, 750, {.forwards = false, .maxSpeed=85});
+                chassis.moveToPoint(chassis.getPose().x-1, chassis.getPose().y +39, 750, {.forwards = false, .maxSpeed=85});
                 chassis.waitUntilDone(); //checkpoint 10
                 hoodPiston.set_value(true);
                 intake_hood_roller.move(127);
                 intake_motor.move(127);
-                left_drive.move_velocity(-40);
-                right_drive.move_velocity(-40);
+                left_drive.move_velocity(-30);
+                right_drive.move_velocity(-30);
                 Snacky.set_value(false);
                 pros::delay(1000);
 
@@ -1006,16 +1006,9 @@ void autonomous()
 
             case 11:
             chassis.setPose(0,0,0);
-            chassis.moveToPoint(0,24, 2000);
+            chassis.moveToPoint(0,10, 2000);
             chassis.waitUntilDone();
-            pros::delay(1000);
-            chassis.moveToPoint(0, 48, 2000);
-            chassis.waitUntilDone();
-            pros::delay(1000);
-            chassis.moveToPoint(0, -24, 2000, {.forwards = false});
-            chassis.waitUntilDone();
-            pros::delay(1000); 
-            chassis.moveToPoint(0, 0, 2000);
+
             break;
             case 12:
             // Enqueue version of case 1 (left safe)
@@ -1124,6 +1117,7 @@ void opcontrol() {
     // Reset unjam state from autonomous
     unjamEnabled = false;
     intakeSpin = false;
+    chassis.setBrakeMode(pros::E_MOTOR_BRAKE_COAST);
 
     while (true) {
 
