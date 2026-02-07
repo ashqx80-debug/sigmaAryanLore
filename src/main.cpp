@@ -34,6 +34,10 @@ bool hood = false;
 bool snack = false;
 bool tong = false;
 
+// Intake unjam state
+bool intakeSpin = false;   // true = intake should be running forward
+bool unjamEnabled = false; // true = auto-unjam detection is active
+
 pros::Controller master(pros::E_CONTROLLER_MASTER);
 
 pros::MotorGroup left_drive({9, -8, -10}, pros::MotorGears::blue);
@@ -368,6 +372,29 @@ void moveF(double distance, bool forwards, bool decreasing, int maxSpeed, int mi
 
 
 
+// ---------- Intake unjam background task ----------
+// Adapted from vidhushi21/lemlibDTeam "states code" commit.
+// Runs as its own pros::Task so it never blocks chassis or init.
+void intakeCtrlTask(void *) {
+    while (true) {
+        if (unjamEnabled && intakeSpin) {
+            // If motor should be spinning but actual velocity is ~0 → jammed
+            if (std::abs(intake_motor.get_actual_velocity()) < 5) {
+                // Reverse briefly to unjam
+                intake_motor.move(-127);
+                pros::delay(200);
+                // Resume forward
+                intake_motor.move(127);
+                pros::delay(200);
+            }
+        }
+        if (!unjamEnabled){
+
+        }
+        pros::delay(20);
+    }
+}
+
 struct MechAction
 {
     enum Type
@@ -466,6 +493,9 @@ void initialize()
     chassis.calibrate();
     pros::delay(1000);
 
+    // Start intake-unjam monitor AFTER calibration so it never blocks init
+    pros::Task intakeTask(intakeCtrlTask, nullptr, "intakeCtrl");
+
     // if (ENABLE_MCL)
     // {
     //     mclInit(0, 0, 0);
@@ -482,6 +512,9 @@ double expo(double normalizedInput) {
 
 void autonomous()
 {
+    // Enable unjam detection for all autonomous routines
+    unjamEnabled = true;
+    
     /*
     1 - left safe | working
     2 - right safe | working
@@ -507,17 +540,20 @@ void autonomous()
             chassis.setPose(-12,26,0);
             chassis.moveToPoint(-27, 50, 1500, {.maxSpeed=75});
             intake_motor.move(127);
+            intakeSpin = true;
             chassis.waitUntil(20);
             rTongue.set_value(true);
             chassis.waitUntilDone();
             chassis.turnToPoint(-52,20, 800);
             chassis.moveToPoint(-52, 20, 1500);
             chassis.waitUntil(16);
+            intakeSpin = false;
             intake_motor.move(0);
             chassis.turnToHeading(180, 800);
             chassis.moveToPoint(-50,42, 800, {.forwards = false});
             chassis.waitUntilDone();
             intake_motor.move(127);
+            intakeSpin = true;
             intake_hood_roller.move(-127);
             hoodPiston.set_value(true); 
             pros::delay(1200);
@@ -534,12 +570,14 @@ void autonomous()
             rTongue.set_value(false);
             chassis.waitUntilDone();
             intake_motor.move(127);
+            intakeSpin = true;
             intake_hood_roller.move(-127);
             hoodPiston.set_value(true);
             pros::delay(750);
             chassis.moveToPoint(-48, 30, 200);
             hoodPiston.set_value(false);
             intake_hood_roller.move(0);
+            intakeSpin = false;
             intake_motor.move(0);
             chassis.moveToPoint(-48, 48, 500, {.minSpeed = 80});
             break;
@@ -548,17 +586,20 @@ void autonomous()
             chassis.setPose(12,26,0);
             chassis.moveToPoint(27, 50, 1500, {.maxSpeed=75});
             intake_motor.move(127);
+            intakeSpin = true;
             chassis.waitUntil(20);
             rTongue.set_value(true);
             chassis.waitUntilDone();
             chassis.turnToPoint(52,20, 800);
             chassis.moveToPoint(52, 20, 1500);
             chassis.waitUntil(16);
+            intakeSpin = false;
             intake_motor.move(0);
             chassis.turnToHeading(180, 800);
             chassis.moveToPoint(50,42, 800, {.forwards = false});
             chassis.waitUntilDone();
             intake_motor.move(127);
+            intakeSpin = true;
             intake_hood_roller.move(-127);
             hoodPiston.set_value(true);
             rTongue.set_value(true);
@@ -576,12 +617,14 @@ void autonomous()
             rTongue.set_value(false);
             chassis.waitUntilDone();
             intake_motor.move(127);
+            intakeSpin = true;
             intake_hood_roller.move(-127);
             hoodPiston.set_value(true);
             pros::delay(1500);
             chassis.moveToPoint(48, 30, 1000);
             hoodPiston.set_value(false);
             intake_hood_roller.move(0);
+            intakeSpin = false;
             intake_motor.move(0);
             chassis.moveToPoint(48, 48, 1000, {.forwards=false, .minSpeed = 80});
             break;
@@ -595,6 +638,7 @@ void autonomous()
             rTongue.set_value(true);
             chassis.moveToPoint(-48, 0, 750, {.maxSpeed = 75});
             intake_motor.move(127);
+            intakeSpin = true;
             left_drive.move_velocity(127);
             right_drive.move_velocity(127);
             pros::delay(300);
@@ -612,12 +656,14 @@ void autonomous()
             chassis.waitUntilDone();
             chassis.turnToHeading(225, 500);
             chassis.moveToPoint(chassis.getPose().x+5, chassis.getPose().y+5, 700, {.forwards = false});
+            intakeSpin = false;
             intake_motor.move(-70);
             rTongue.set_value(true);
             midgoalPiston.set_value(true);
             intake_hood_roller.move(-97);
             pros::delay(250);
             intake_motor.move(90);
+            intakeSpin = true;
             pros::delay(750);
             chassis.moveToPoint(chassis.getPose().x-16.5, chassis.getPose().y-12, 750);
 
@@ -628,12 +674,14 @@ void autonomous()
             chassis.setPose(12,26,0);
             chassis.moveToPoint(27, 50, 1300, {.maxSpeed=75});
             intake_motor.move(127);
+            intakeSpin = true;
             chassis.waitUntil(20);
             rTongue.set_value(true);
             chassis.waitUntilDone();
             chassis.turnToPoint(50,62, 700 );
             chassis.moveToPoint(50, 62, 1000);
             pros::delay(700);
+            intakeSpin = false;
             intake_motor.move(0);
             chassis.waitUntilDone();
             intake_hood_roller.move(127);
@@ -643,11 +691,13 @@ void autonomous()
             chassis.turnToPoint(52,20, 700);
             chassis.moveToPoint(52, 20, 1000);
             chassis.waitUntil(16);
+            intakeSpin = false;
             intake_motor.move(0);
             chassis.turnToHeading(180, 700);
             chassis.waitUntilDone();
             rTongue.set_value(true);
             intake_motor.move(127);
+            intakeSpin = true;
             chassis.moveToPoint(48, 0, 1000, {.maxSpeed=70});
             chassis.waitUntil(5);
             intake_hood_roller.move(0);
@@ -660,11 +710,13 @@ void autonomous()
             rTongue.set_value(false);
             chassis.waitUntilDone();
             intake_motor.move(127);
+            intakeSpin = true;
             intake_hood_roller.move(-127);
             hoodPiston.set_value(true);
             pros::delay(1200);
             hoodPiston.set_value(false);
             intake_hood_roller.move(0);
+            intakeSpin = false;
             intake_motor.move(0);
                  
             break;
@@ -677,6 +729,7 @@ void autonomous()
                  rTongue.set_value(true);
                  chassis.moveToPoint(48, 0,900, {.maxSpeed=75});
                  intake_motor.move(127);
+                 intakeSpin = true;
                  left_drive.move_velocity(127);
                  right_drive.move_velocity(127);
                  pros::delay(300);
@@ -706,6 +759,7 @@ void autonomous()
                  chassis.setPose(12, 26, 90);
                  Snacky.set_value(true);
                  intake_motor.move(127);
+                 intakeSpin = true;
                  
                  chassis.moveToPoint(27, 50, 1250, {.maxSpeed=75});
                  chassis.waitUntilDone();
@@ -726,12 +780,15 @@ void autonomous()
                  chassis.waitUntilDone();
                  intake_hood_roller.move(100);
                  hoodPiston.set_value(true);
+                 intakeSpin = false;
                  intake_motor.move(-127);
                  pros::delay(250);
                  intake_motor.move(127);
+                 intakeSpin = true;
                  pros::delay(1500);
                  hoodPiston.set_value(false);
                  intake_hood_roller.move(0);
+                 intakeSpin = false;
                  intake_motor.move(0);
                  chassis.moveToPoint(chassis.getPose().x, chassis.getPose().y - 10, 500);
                  rTongue.set_value(false);
@@ -759,6 +816,7 @@ void autonomous()
                 chassis.waitUntilDone();
 
                 intake_motor.move(127);
+                intakeSpin = true;
                 rTongue.set_value(true);
 
                 chassis.moveToPoint(47.5, 0, 900, {.maxSpeed = 75});
@@ -778,6 +836,7 @@ void autonomous()
                 pros::delay(900);
                 hoodPiston.set_value(false);
                 intake_hood_roller.move(0);
+                intakeSpin = false;
                 intake_motor.move(0);
                 chassis.moveToPoint(27, 24, 450); //checkpoint 4
                 chassis.waitUntilDone();
@@ -790,6 +849,7 @@ void autonomous()
                 chassis.waitUntilDone();
                 rTongue.set_value(true); //checkpoint 6
                 intake_motor.move(80);
+                intakeSpin = true;
                 chassis.turnToPoint(chassis.getPose().x+10, chassis.getPose().y+6, 350, {.forwards = false});
                 chassis.moveToPoint(chassis.getPose().x+10, chassis.getPose().y+6, 650, {.forwards = false});
                 chassis.waitUntilDone(); //scores midgoal, checkpoint 7
@@ -797,16 +857,21 @@ void autonomous()
                 left_drive.move_velocity(-40);
                 right_drive.move_velocity(-40);
                 intake_hood_roller.move(-100);
+                intakeSpin = false;
                 intake_motor.move(-100);
                 pros::delay(125);
                 left_drive.move_velocity(0);
                 right_drive.move_velocity(0);
                 intake_motor.move(100);
+                intakeSpin = true;
                 pros::delay(250);
+                intakeSpin = false;
                 intake_motor.move(-80);
                 pros::delay(125);
                 intake_motor.move(127);
+                intakeSpin = true;
                 pros::delay(1200);
+                intakeSpin = false;
                 intake_motor.move(0);
                 intake_hood_roller.move(0);
                 midgoalPiston.set_value(false);
@@ -817,6 +882,7 @@ void autonomous()
                 chassis.moveToPoint(chassis.getPose().x+2.5, chassis.getPose().y -40, 680, {.maxSpeed=75});
                 chassis.waitUntilDone(); //checkpoint 9
                 intake_motor.move(127);
+                intakeSpin = true;
                 left_drive.move_velocity(127);
                 right_drive.move_velocity(127);
                 pros::delay(500);
@@ -851,6 +917,7 @@ void autonomous()
             chassis.waitUntilDone();
 
             intake_motor.move(127);
+            intakeSpin = true;
             rTongue.set_value(true);
 
             chassis.moveToPoint(49, 0, 500, {.maxSpeed = 60});
@@ -867,6 +934,7 @@ void autonomous()
             rTongue.set_value(false);
             chassis.waitUntilDone();
 
+            intakeSpin = false;
             intake_motor.move(0);
             chassis.moveToPoint(57.5, 45, 1500, {.forwards = false, .maxSpeed = 65});
             chassis.waitUntilDone();
@@ -879,6 +947,7 @@ void autonomous()
             chassis.turnToHeading(0, 500);
             chassis.moveToPoint(chassis.getPose().x, chassis.getPose().y -16, 760, {.forwards = false});
             intake_motor.move(127);
+            intakeSpin = true;
             intake_hood_roller.move(127);
             hoodPiston.set_value(true);
            
@@ -1052,6 +1121,10 @@ void autonomous()
 
 
 void opcontrol() {
+    // Reset unjam state from autonomous
+    unjamEnabled = false;
+    intakeSpin = false;
+
     while (true) {
 
 
@@ -1068,37 +1141,27 @@ void opcontrol() {
 
         
 
-        if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
-
-            intake_motor.move(127);
-            intake_hood_roller.move(127);
-        }
-
-        else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
-
-            intake_motor.move(127);
-            
-            
-        }
-        else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L1)) {
-
-
-            intake_motor.move(-127);
-            intake_hood_roller.move(-127);
-
-
-        }
-        else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_A)) {
-            intake_motor.move(90);
-            intake_hood_roller.move(-90);
-
-
-
-        }
-        else {
-            intake_motor.move(0);
-            intake_hood_roller.move(0);
-
+        // --- Manual intake control (only when unjam not enabled) ---
+        if (!unjamEnabled) {
+            if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
+                intake_motor.move(127);
+                intake_hood_roller.move(127);
+            }
+            else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
+                intake_motor.move(127);
+            }
+            else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L1)) {
+                intake_motor.move(-127);
+                intake_hood_roller.move(-127);
+            }
+            else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_A)) {
+                intake_motor.move(90);
+                intake_hood_roller.move(-90);
+            }
+            else {
+                intake_motor.move(0);
+                intake_hood_roller.move(0);
+            }
         }
         hoodPiston.set_value(master.get_digital(pros::E_CONTROLLER_DIGITAL_R2));
         midgoalPiston.set_value(master.get_digital(pros::E_CONTROLLER_DIGITAL_A));
