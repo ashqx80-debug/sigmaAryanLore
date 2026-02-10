@@ -498,7 +498,7 @@ void autonomous()
     13 - enqueue test right| not tested
     14 - mcl test | not made
     */
-    int autonSelector = 8;
+    int autonSelector = 9;
     // chassis.setPose(estX, estY, estH * 180 / M_PI);
     Snacky.set_value(true);
     switch (autonSelector)
@@ -767,7 +767,7 @@ void autonomous()
                 right_drive.move_velocity(90); // matchload
                 pros::delay(400);
                 chassis.turnToHeading(180, 400);
-                chassis.moveToPoint(chassis.getPose().x-2.5, chassis.getPose().y + 40, 820, {.forwards = false, .maxSpeed = 70});
+                chassis.moveToPoint(chassis.getPose().x-1.5, chassis.getPose().y + 40, 820, {.forwards = false, .maxSpeed = 70});
                 rTongue.set_value(false); //checkpoint 3
                 chassis.waitUntilDone();
                 intake_hood_roller.move(110);
@@ -851,7 +851,7 @@ void autonomous()
 
             chassis.setPose(12, 26, 90);
 
-            chassis.moveToPoint(49.5, 26, 1500);
+            chassis.moveToPoint(48.5, 26, 1500);
             chassis.waitUntilDone();
             pros::delay(500);
 
@@ -861,7 +861,7 @@ void autonomous()
             intake_motor.move(127);
             rTongue.set_value(true);
 
-            chassis.moveToPoint(49, 0, 500, {.maxSpeed = 60});
+            chassis.moveToPoint(47.5, 0, 500, {.maxSpeed = 60});
             chassis.waitUntilDone();
 
             left_drive.move_velocity(127);
