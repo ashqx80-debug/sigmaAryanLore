@@ -25,6 +25,7 @@ void skillsProg(){
         chassis.turnToHeading(180, 500);
         chassis.waitUntilDone();
 
+        intakeSpin=true;
         intake_motor.move(127);
         rTongue.set_value(true);
 
@@ -57,9 +58,7 @@ void skillsProg(){
         left_drive.move_velocity(-50);
         intake_hood_roller.move(100);
         hoodPiston.set_value(true);
-        intake_motor.move(-90);
-        pros::delay(250);
-        intake_motor.move(127);
+        // Manual unjam sequence removed
         right_drive.move_velocity(0);
         left_drive.move_velocity(-10);
     
@@ -87,10 +86,6 @@ void skillsProg(){
 
         intake_hood_roller.move(127);
         hoodPiston.set_value(true);
-        intake_motor.move(-90);
-        pros::delay(250);
-        intake_motor.move(127);
-        pros::delay(1250);
         chassis.moveToPoint(48, 120, 750);
         chassis.waitUntilDone();
         chassis.turnToHeading(270, 500);
@@ -119,9 +114,6 @@ void skillsProg(){
 
         intake_hood_roller.move(100);
         hoodPiston.set_value(true);
-        intake_motor.move(-90);
-        pros::delay(250);
-        intake_motor.move(127);
         right_drive.move_velocity(0);
     
         enc_vertical.reset_position();
