@@ -31,6 +31,6 @@ lemlib::TrackingWheel horzTW(&enc_horizontal, lemlib::Omniwheel::NEW_2, -5.75);
 lemlib::OdomSensors odomSensors(&vertTW, nullptr, &horzTW, nullptr, &imu);
 
 lemlib::ControllerSettings lateral(5.5, 0.0001, 22, 3, 3, 1, 3, 100, 20);
-lemlib::ControllerSettings angular(2.91, 0.0001, 26, 0, 0, 0, 0, 0, 0);
+lemlib::ControllerSettings angular(2.91, 0.0001, 26, 3, 0, 0, 0, 0, 0);
 
 lemlib::Chassis chassis(drivetrain, lateral, angular, odomSensors);
