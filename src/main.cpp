@@ -69,30 +69,37 @@ void autonomous(){
     switch (autonSelector){    
         case 1:
         left7();
+        //works
         break;
 
         case 2:
         right7();
+        //works
         break;
 
         case 3:
         midthreeplusfour();
+        //almost there
         break;
 
         case 4:
         dheerarightfourballrush();
+        //75%
         break;
 
         case 5:
         dheeraleftfourballrush();
+        //75%
         break;
 
         case 6:
         sigSawp();
+        //50%
         break;
 
         case 7:
         skillsProg();
+        //40%
         break;
     }
 };
