@@ -29,39 +29,15 @@
 // Hardware definitions moved to src/hardware.cpp
 
 
-bool unjamEnabled = false;
-bool intakeSpin = false;
 
-void intakeCtrlTask(void *) {
-    while (true) {
-        if (unjamEnabled && intakeSpin) {
-            // If motor should be spinning but actual velocity is ~0 → jammed
-            if (std::abs(intake_motor.get_actual_velocity()) < 5) {
-                // Reverse briefly to unjam
-                intake_motor.move(-127);
-                pros::delay(200);
-                // Resume forward
-                intake_motor.move(127);
-                pros::delay(200);
-            }
-        }
-        if (!unjamEnabled){
-
-        }
-        pros::delay(20);
-    }
-}
 
 // mech and helper implementations moved to src/helpers.cpp
 void initialize()
 {
-    chassis.setBrakeMode(pros::E_MOTOR_BRAKE_HOLD);
+    chassis.setBrakeMode(pros::E_MOTOR_BRAKE_COAST);
     pros::lcd::initialize();
     chassis.calibrate();
     pros::delay(1000);
-
-    // Start intake-unjam monitor AFTER calibration so it never blocks init
-    pros::Task intakeTask(intakeCtrlTask, nullptr, "intakeCtrl");
 
     // if (ENABLE_MCL)
     // {
@@ -69,7 +45,7 @@ void initialize()
     //     pros::Task(mclTask, nullptr);
     // }
 
-   //pros::Task(mechTask, nullptr);
+   //pros::Task(mechTask, nullptr);,
 }
 
 double expo(double normalizedInput) {
@@ -77,11 +53,7 @@ double expo(double normalizedInput) {
     return (normalizedInput / 15000);
 }
 
-void autonomous()
-{
-    // Enable unjam detection for all autonomous routines
-    unjamEnabled = true;
-    
+void autonomous(){
     /*
     1 - left safe | working
     2 - right safe | working
@@ -127,11 +99,6 @@ void autonomous()
 
 
 void opcontrol() {
-    // Reset unjam state from autonomous
-    unjamEnabled = false;
-    intakeSpin = false;
-    chassis.setBrakeMode(pros::E_MOTOR_BRAKE_COAST);
-
     while (true) {
 
 
@@ -148,27 +115,37 @@ void opcontrol() {
 
         
 
-        // --- Manual intake control (only when unjam not enabled) ---
-        if (!unjamEnabled) {
-            if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
-                intake_motor.move(127);
-                intake_hood_roller.move(127);
-            }
-            else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
-                intake_motor.move(127);
-            }
-            else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L1)) {
-                intake_motor.move(-127);
-                intake_hood_roller.move(-127);
-            }
-            else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_A)) {
-                intake_motor.move(90);
-                intake_hood_roller.move(-90);
-            }
-            else {
-                intake_motor.move(0);
-                intake_hood_roller.move(0);
-            }
+        if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
+
+            intake_motor.move(127);
+            intake_hood_roller.move(127);
+        }
+
+        else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
+
+            intake_motor.move(127);
+            
+            
+        }
+        else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L1)) {
+
+
+            intake_motor.move(-127);
+            intake_hood_roller.move(-127);
+
+
+        }
+        else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_A)) {
+            intake_motor.move(90);
+            intake_hood_roller.move(-90);
+
+
+
+        }
+        else {
+            intake_motor.move(0);
+            intake_hood_roller.move(0);
+
         }
         hoodPiston.set_value(master.get_digital(pros::E_CONTROLLER_DIGITAL_R2));
         midgoalPiston.set_value(master.get_digital(pros::E_CONTROLLER_DIGITAL_A));
