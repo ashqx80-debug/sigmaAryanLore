@@ -64,7 +64,9 @@ void skillsProg(){
         left_drive.move_velocity(-10);
     
         enc_vertical.reset_position();
-        pros::delay(2500);
+        pros::delay(500);
+        imu.reset();
+        pros::delay(2000);
 
         chassis.setPose(48,102, 0);
 
@@ -145,5 +147,4 @@ void skillsProg(){
         chassis.turnToHeading(90, 500);
         chassis.moveToPoint(12, 12, 2000, {.maxSpeed = 85});
         chassis.waitUntilDone();
-
 }
