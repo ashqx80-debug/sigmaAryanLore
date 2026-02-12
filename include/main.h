@@ -66,6 +66,9 @@ void initialize(void);
 void disabled(void);
 void competition_initialize(void);
 void opcontrol(void);
+
+extern bool unjamEnabled;
+extern bool intakeSpin;
 #ifdef __cplusplus
 }
 #endif

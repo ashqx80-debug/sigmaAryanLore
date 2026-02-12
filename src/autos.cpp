@@ -313,3 +313,8 @@ void sigSawp(){
     Snacky.set_value(false);
     pros::delay(1000);
 }
+
+void unjamTest(){
+    intakeSpin = true;
+    intake_motor.move(127);
+}
