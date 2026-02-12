@@ -30,6 +30,25 @@
 
 
 
+void intakeCtrlTask(void *) {
+    while (true) {
+        if (unjamEnabled && intakeSpin) {
+            // If motor should be spinning but actual velocity is ~0 → jammed
+            if (std::abs(intake_motor.get_actual_velocity()) < 25) {
+                // Reverse briefly to unjam
+                intake_motor.move(-127);
+                pros::delay(250);
+                // Resume forward
+                intake_motor.move(127);
+                pros::delay(50);
+            }
+        }
+        if (!unjamEnabled){
+            
+        }
+        pros::delay(5);
+    }
+}
 
 // mech and helper implementations moved to src/helpers.cpp
 void initialize()
@@ -93,6 +112,10 @@ void autonomous(){
 
         case 7:
         skillsProg();
+        break;
+
+        case 8:
+        unjamTest();
         break;
     }
 };
