@@ -51,11 +51,10 @@ void skillsProg(){
         chassis.moveToPoint(chassis.getPose().x-15.6, chassis.getPose().y, 900);
         chassis.waitUntilDone();
         chassis.turnToHeading(0, 500);
-        chassis.moveToPoint(chassis.getPose().x, chassis.getPose().y -10, 960, {.forwards = false});
-        left_drive.move_velocity(-45);
+        chassis.moveToPoint(chassis.getPose().x, chassis.getPose().y -7.5, 960, {.forwards = false});
+        left_drive.move_velocity(-30);
         right_drive.move_velocity(-30);
         chassis.waitUntilDone();
-        left_drive.move_velocity(-50);
         intake_hood_roller.move(100);
         hoodPiston.set_value(true);
         // Manual unjam sequence removed
@@ -63,9 +62,8 @@ void skillsProg(){
         left_drive.move_velocity(-10);
     
         enc_vertical.reset_position();
-        pros::delay(500);
-        imu.reset();
-        pros::delay(2000);
+        pros::delay(2500);
+        //imu.reset();
 
         chassis.setPose(48,102, 0);
 
@@ -73,14 +71,14 @@ void skillsProg(){
         hoodPiston.set_value(false);
         intake_hood_roller.move(0);
 
-        chassis.moveToPoint(48.5, 148, 900, {.maxSpeed = 75});
+        chassis.moveToPoint(48.5, 146, 900, {.maxSpeed = 75});
         chassis.waitUntilDone();
 
         left_drive.move_velocity(127);
         right_drive.move_velocity(127);
         pros::delay(1600);
 
-        chassis.moveToPoint(48, 102, 1000, {.forwards = false});
+        chassis.moveToPoint(48, 100, 1000, {.forwards = false});
         chassis.waitUntilDone();
         rTongue.set_value(false);
 
@@ -106,16 +104,16 @@ void skillsProg(){
         chassis.moveToPoint(chassis.getPose().x+15, chassis.getPose().y , 750);
         chassis.waitUntilDone();
         chassis.turnToHeading(180, 500);
-        chassis.moveToPoint(chassis.getPose().x, chassis.getPose().y -10, 960, {.forwards = false});
+        chassis.moveToPoint(chassis.getPose().x, chassis.getPose().y -7.5, 960, {.forwards = false, .maxSpeed = 85});
         left_drive.move_velocity(-30);
         right_drive.move_velocity(-30);
         chassis.waitUntilDone();
-        left_drive.move_velocity(-43);
+
 
         intake_hood_roller.move(100);
         hoodPiston.set_value(true);
         right_drive.move_velocity(0);
-    
+        left_drive.move_velocity(-10);
         enc_vertical.reset_position();
         pros::delay(2500);
         chassis.setPose( -48,42, 180);
@@ -125,9 +123,11 @@ void skillsProg(){
         left_drive.move_velocity(127);
         right_drive.move_velocity(127);
         pros::delay(1600);
-        chassis.moveToPoint(-48, 42, 1000, {.forwards = false});
+        chassis.moveToPoint(-48, 40, 1000, {.forwards = false});
         chassis.waitUntilDone();
         rTongue.set_value(false);
+        left_drive.move_velocity(-25);
+        right_drive.move_velocity(-25);
         intake_hood_roller.move(107);
         hoodPiston.set_value(true);
         pros::delay(1500);
