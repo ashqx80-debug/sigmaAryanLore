@@ -69,6 +69,7 @@ void opcontrol(void);
 
 extern bool unjamEnabled;
 extern bool intakeSpin;
+extern int intakeSpeed;
 #ifdef __cplusplus
 }
 #endif

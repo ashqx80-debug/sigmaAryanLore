@@ -30,6 +30,7 @@
 
 bool unjamEnabled = false;
 bool intakeSpin = false;
+int intakeSpeed = 127;
 
 void intakeCtrlTask(void *) {
     while (true) {
@@ -40,8 +41,8 @@ void intakeCtrlTask(void *) {
                 intake_motor.move(-127);
                 pros::delay(250);
                 // Resume forward
-                intake_motor.move(127);
-                pros::delay(50);
+                intake_motor.move(intakeSpeed);
+                pros::delay(100);
             }
         }
         if (!unjamEnabled){
