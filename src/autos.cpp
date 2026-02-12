@@ -319,5 +319,4 @@ void unjamTest(){
     intake_motor.move(127);
     intake_hood_roller.move(127);
     pros::delay(2000);
-    
 }
