@@ -1,7 +1,7 @@
 {
   "py/object": "pros.conductor.project.Project",
   "py/state": {
-    "project_name": "itsmyfavmonth",
+    "project_name": "SkillsSigmaAryanLore",
     "target": "v5",
     "templates": {
       "LemLib": {
@@ -635,7 +635,7 @@
       }
     },
     "upload_options": {
-      "icon": "clawbot",
+      "icon": "robot",
       "slot": 2
     },
     "use_early_access": false
