@@ -21,10 +21,10 @@
 
 //67
 
-// #include <vector>
-// #include <random>
-// #include <cmath>
-// #include <algorithm>
+ #include <vector>
+ #include <random>
+ #include <cmath>
+ #include <algorithm>
 
 // Hardware definitions moved to src/hardware.cpp
 

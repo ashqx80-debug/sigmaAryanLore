@@ -1,4 +1,5 @@
 #include "globals.hpp"
+#include "pros/optical.hpp"
 
 // Hardware definitions (moved from main.cpp)
 pros::Motor intake_motor(4, pros::MotorGears::blue);
@@ -24,6 +25,7 @@ pros::Imu imu(1);
 pros::Rotation enc_vertical(-2);
 pros::Rotation enc_horizontal(-22);
 pros::Distance  intake_dist(11);
+pros::Optical colorSensor(14);
 
 lemlib::TrackingWheel vertTW(&enc_vertical, lemlib::Omniwheel::NEW_275, -0.5);
 lemlib::TrackingWheel horzTW(&enc_horizontal, lemlib::Omniwheel::NEW_2, -5.75);
