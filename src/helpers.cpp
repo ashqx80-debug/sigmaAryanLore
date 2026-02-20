@@ -504,7 +504,7 @@ void moveB(double distance, bool forwards, bool decreasing, int maxSpeed, int mi
     if(dist < 2 || dist > 70) return;
 
     // IMPORTANT: when squared to wall, X drift disappears
-    chassis.setPose(chassis.getPose().x, fieldY + dist + 6.5, heading);
+    chassis.setPose(chassis.getPose().x, fieldY - dist - 3.5, heading);
 
     // zero lateral error memory inside lemlib
     chassis.calibrate(); 
@@ -524,4 +524,30 @@ void moveB(double distance, bool forwards, bool decreasing, int maxSpeed, int mi
 
     // zero lateral error memory inside lemlib
     chassis.calibrate(); 
+}
+
+void antiPushTaskFn(void*) {
+    const int velocityThreshold = 8;
+    const int commandThreshold  = 5;
+    const int correctionPower   = 70;
+    const int correctionTime    = 1000;
+    const int cooldownTime      = 600;
+    uint32_t lastTrigger = 0;
+    while(true) {
+        int leftCmd  = left_drive.get_target_velocity();
+        int rightCmd = right_drive.get_target_velocity();
+        int leftVel  = left_drive.get_actual_velocity();
+        int rightVel = right_drive.get_actual_velocity();
+        bool robotCommandedStopped = std::abs(leftCmd) < commandThreshold && std::abs(rightCmd) < commandThreshold;
+        bool robotMoving = std::abs(leftVel) > velocityThreshold || std::abs(rightVel) > velocityThreshold;
+        if(robotCommandedStopped && robotMoving && pros::millis() - lastTrigger > cooldownTime) {
+            lastTrigger = pros::millis();
+            left_drive.move(correctionPower);
+            right_drive.move(correctionPower);
+            pros::delay(correctionTime);
+            left_drive.move(0);
+            right_drive.move(0);
+        }
+        pros::delay(20);
+    }
 }
