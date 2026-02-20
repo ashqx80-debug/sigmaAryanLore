@@ -493,3 +493,35 @@ void moveB(double distance, bool forwards, bool decreasing, int maxSpeed, int mi
  * @param maxSpeed Maximum motor speed (0-127)
  * @param timeOutMs Timeout in milliseconds
  */
+ void hardBackWallResetY(double fieldY, double heading, int timeout)
+{
+    // approach wall slowly until stable
+    moveB(160, false, true, 70, 25, timeout);
+
+    pros::delay(120);
+
+    double dist = intake_dist.get() / 25.4;
+    if(dist < 2 || dist > 70) return;
+
+    // IMPORTANT: when squared to wall, X drift disappears
+    chassis.setPose(chassis.getPose().x, fieldY + dist + 6.5, heading);
+
+    // zero lateral error memory inside lemlib
+    chassis.calibrate(); 
+}
+ void hardBackWallResetX(double fieldX, double heading, int timeout)
+{
+    // approach wall slowly until stable
+    moveB(160, false, true, 70, 25, timeout);
+
+    pros::delay(120);
+
+    double dist = intake_dist.get() / 25.4;
+    if(dist < 2 || dist > 70) return;
+
+    // IMPORTANT: when squared to wall, X drift disappears
+    chassis.setPose(fieldX + dist + 6.5, chassis.getPose().y, heading);
+
+    // zero lateral error memory inside lemlib
+    chassis.calibrate(); 
+}
