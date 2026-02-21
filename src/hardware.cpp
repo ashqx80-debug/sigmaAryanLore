@@ -2,7 +2,7 @@
 
 // Hardware definitions (moved from main.cpp)
 pros::Motor intake_motor(-2, pros::MotorGears::blue);
-pros::Motor intake_hood_roller(-1, pros::MotorGears::blue);
+pros::Motor intake_hood_roller(1, pros::MotorGears::blue);
 
 pros::adi::DigitalOut hoodPiston('A');
 pros::adi::DigitalOut rTongue('B');
