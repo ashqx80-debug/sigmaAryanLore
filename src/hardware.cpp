@@ -1,8 +1,8 @@
 #include "globals.hpp"
 
 // Hardware definitions (moved from main.cpp)
-pros::Motor intake_motor(4, pros::MotorGears::blue);
-pros::Motor intake_hood_roller(-12, pros::MotorGears::blue);
+pros::Motor intake_motor(-2, pros::MotorGears::blue);
+pros::Motor intake_hood_roller(-1, pros::MotorGears::blue);
 
 pros::adi::DigitalOut hoodPiston('A');
 pros::adi::DigitalOut rTongue('B');
@@ -17,13 +17,13 @@ bool unjamEnabled = true;
 
 pros::Controller master(pros::E_CONTROLLER_MASTER);
 
-pros::MotorGroup left_drive({9, -8, -10}, pros::MotorGears::blue);
-pros::MotorGroup right_drive({-7, 6, 5}, pros::MotorGears::blue);
+pros::MotorGroup left_drive({10, -9, -8}, pros::MotorGears::blue);
+pros::MotorGroup right_drive({-6, 7, 5}, pros::MotorGears::blue);
 
 lemlib::Drivetrain drivetrain(&left_drive, &right_drive, 11, lemlib::Omniwheel::NEW_325, 450, 2);
 
-pros::Imu imu(1);
-pros::Rotation enc_vertical(-2);
+pros::Imu imu(3);
+pros::Rotation enc_vertical(-4);
 pros::Rotation enc_horizontal(-22);
 pros::Distance  intake_dist(11);
 
