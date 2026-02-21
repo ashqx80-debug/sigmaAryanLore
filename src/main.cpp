@@ -50,7 +50,7 @@ void initialize()
 
 double expo(double normalizedInput) {
     normalizedInput = pow(normalizedInput, 3);
-    return (normalizedInput / 15000);
+    return (normalizedInput / 10000);
 }
 
 void autonomous(){
