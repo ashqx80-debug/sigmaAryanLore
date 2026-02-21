@@ -12,8 +12,6 @@ pros::adi::DigitalOut midgoalPiston('D');
 bool hood = false;
 bool snack = false;
 bool tong = false;
-bool intakeSpin = false;
-bool unjamEnabled = true;
 
 pros::Controller master(pros::E_CONTROLLER_MASTER);
 
