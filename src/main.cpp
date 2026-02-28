@@ -83,7 +83,7 @@ void autonomous(){
     6 - sig sawp | not made
     7 - skills | not made
     */
-    int autonSelector = 9;
+    int autonSelector = 7;
     // chassis.setPose(estX, estY, estH * 180 / M_PI);
     Snacky.set_value(true);
     switch (autonSelector){    
@@ -129,6 +129,12 @@ void autonomous(){
         case 10:
         chassis.setPose(0, 0, 90);
         chassis.turnToHeading(180, 1000);
+        chassis.waitUntilDone();
+        chassis.turnToHeading(-90, 1000);
+        chassis.waitUntilDone();
+        chassis.turnToHeading(0, 1000);
+        chassis.waitUntilDone();
+        chassis.turnToHeading(90, 1000);
         chassis.waitUntilDone();
         break;
     }
@@ -186,7 +192,7 @@ void opcontrol() {
         }
         hoodPiston.set_value(master.get_digital(pros::E_CONTROLLER_DIGITAL_R2));
         midgoalPiston.set_value(master.get_digital(pros::E_CONTROLLER_DIGITAL_A));
-
+        midgoalDescore.set_value(master.get_digital(pros::E_CONTROLLER_DIGITAL_Y));
         // else if (!isSkills && master.get_digital(pros::E_CONTROLLER_DIGITAL_A)) {
         //     intakePower = 90;
         //     hoodRollerPower = 90;

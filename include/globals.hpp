@@ -15,6 +15,7 @@ extern pros::adi::DigitalOut hoodPiston;
 extern pros::adi::DigitalOut rTongue;
 extern pros::adi::DigitalOut Snacky;
 extern pros::adi::DigitalOut midgoalPiston;
+extern pros::adi::DigitalOut midgoalDescore;
 
 extern pros::Controller master;
 
