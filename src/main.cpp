@@ -82,7 +82,7 @@ void autonomous(){
     6 - sig sawp | not made
     7 - skills | not made
     */
-    int autonSelector = 3;
+    int autonSelector = 9;
     // chassis.setPose(estX, estY, estH * 180 / M_PI);
     Snacky.set_value(true);
     switch (autonSelector){    
@@ -116,6 +116,19 @@ void autonomous(){
 
         case 8:
         unjamTest();
+        break;
+        
+        case 9:
+        chassis.setPose(0, 0, 90);
+        chassis.moveToPoint(24, 0, 1000, {.maxSpeed = 75});
+        chassis.waitUntilDone();
+
+        break;
+
+        case 10:
+        chassis.setPose(0, 0, 90);
+        chassis.turnToHeading(180, 1000);
+        chassis.waitUntilDone();
         break;
     }
 };
