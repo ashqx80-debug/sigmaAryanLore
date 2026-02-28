@@ -7,6 +7,7 @@
 #include "lemlib/api.hpp"
 #include "pros/adi.hpp"
 #include "pros/distance.hpp"
+#include "pros/misc.h"
 #include "pros/motors.h"
 #include "pros/rtos.hpp"
 #include <numeric>
@@ -185,6 +186,7 @@ void opcontrol() {
         }
         hoodPiston.set_value(master.get_digital(pros::E_CONTROLLER_DIGITAL_R2));
         midgoalPiston.set_value(master.get_digital(pros::E_CONTROLLER_DIGITAL_A));
+
         // else if (!isSkills && master.get_digital(pros::E_CONTROLLER_DIGITAL_A)) {
         //     intakePower = 90;
         //     hoodRollerPower = 90;
