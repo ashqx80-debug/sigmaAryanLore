@@ -69,6 +69,11 @@ void lowthreeplusfour(void);
 void dheerarightfourballrush(void);
 void dheeraleftfourballrush(void);
 void sigSawp(void);
+void right7push(void);
+
+void lateralTest(void);
+
+void new4plus3(void);
 
 #ifdef __cplusplus
 }

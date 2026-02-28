@@ -57,13 +57,13 @@ void autonomous(){
     /*
     1 - left safe | working
     2 - right safe | working
-    3 - mid goal (left) | in dev
-    4 - 4 ball rush (left) | not made
-    5 - 4 ball rush (right) | not made
-    6 - sig sawp | not made
-    7 - skills | not made
+    3 - mid goal (left) | working
+    4 - 4 ball rush (right) | not made
+    5 - 4 ball rush (left) | not made
+    6 - sig sawp | made
+    7 - skills | in dev
     */
-    int autonSelector = 6;
+    int autonSelector = 3;
     // chassis.setPose(estX, estY, estH * 180 / M_PI);
     Snacky.set_value(true);
     switch (autonSelector){    
@@ -101,6 +101,18 @@ void autonomous(){
         skillsProg();
         //40%
         break;
+
+        case 8:
+        right7push();
+        break;
+
+        case 9:
+        new4plus3();
+
+        case 10:
+        lateralTest();
+        break;
+        
     }
 };
 
