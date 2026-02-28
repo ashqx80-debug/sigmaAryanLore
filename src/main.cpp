@@ -36,12 +36,12 @@ bool tong = false;
 
 pros::Controller master(pros::E_CONTROLLER_MASTER);
 
-pros::MotorGroup left_drive({9, -8, -10}, pros::MotorGears::blue);
-pros::MotorGroup right_drive({-7, 6, 5}, pros::MotorGears::blue);
+pros::MotorGroup left_drive({10, -9, -8}, pros::MotorGears::blue);
+pros::MotorGroup right_drive({-6, 7, 5}, pros::MotorGears::blue);
 
 lemlib::Drivetrain drivetrain(&left_drive, &right_drive, 11, lemlib::Omniwheel::NEW_325, 450, 2);
 
-pros::Imu imu(1);
+pros::Imu imu(15);
 pros::Rotation enc_vertical(-2);
 pros::Rotation enc_horizontal(-22);
 pros::Distance  intake_dist(11);
@@ -51,8 +51,8 @@ lemlib::TrackingWheel horzTW(&enc_horizontal, lemlib::Omniwheel::NEW_2, -5.75);
 
 lemlib::OdomSensors odomSensors(&vertTW, nullptr, &horzTW, nullptr, &imu);
 
-lemlib::ControllerSettings lateral(5, 0.0001, 21, 3, 3, 1, 3, 100, 20);
-lemlib::ControllerSettings angular(2.9, 0.0001, 26, 0, 0, 0, 0, 0, 0);
+lemlib::ControllerSettings lateral(2, 0.0001, 10, 0, 0, 0, 0, 0, 0);
+lemlib::ControllerSettings angular(1.55, 0, 10, 0, 0, 0, 0, 0, 0);
 
 lemlib::Chassis chassis(drivetrain, lateral, angular, odomSensors);
 
@@ -405,7 +405,7 @@ void autonomous()
     13 - enqueue test right| not tested
     14 - mcl test | not made
     */
-    int autonSelector = 4;
+    int autonSelector = 11;
     // chassis.setPose(estX, estY, estH * 180 / M_PI);
     Snacky.set_value(true);
     switch (autonSelector)
@@ -733,22 +733,9 @@ void autonomous()
 
             case 10:
             chassis.setPose(0,0,0);
-            pros::lcd::print(2, "H %.2lf", imu.get_heading());
-            chassis.turnToHeading(180, 2000);
-            pros::lcd::print(2, "H %.2lf", imu.get_heading());
+            chassis.turnToHeading(90, 1000);
             chassis.waitUntilDone();
-            pros::delay(1000);
-            chassis.turnToHeading(-90, 2000);
-            pros::lcd::print(2, "H %.2lf", imu.get_heading());
-            chassis.waitUntilDone();
-            pros::delay(1000);
-            chassis.turnToHeading(90, 2000);
-            pros::lcd::print(2, "H %.2lf", imu.get_heading());
-            chassis.waitUntilDone();
-            pros::delay(1000);
-            chassis.turnToHeading(0, 2000);
-            pros::lcd::print(2, "H %.2lf", imu.get_heading());
-
+            chassis.turnToHeading(0, 1000);
             break;
 
             case 11:
@@ -757,12 +744,6 @@ void autonomous()
             chassis.waitUntilDone();
             pros::delay(1000);
             chassis.moveToPoint(0, 48, 2000);
-            chassis.waitUntilDone();
-            pros::delay(1000);
-            chassis.moveToPoint(0, -24, 2000, {.forwards = false});
-            chassis.waitUntilDone();
-            pros::delay(1000); 
-            chassis.moveToPoint(0, 0, 2000);
             break;
             case 12:
             // Enqueue version of case 1 (left safe)
