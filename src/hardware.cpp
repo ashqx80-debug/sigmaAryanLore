@@ -23,10 +23,10 @@ pros::MotorGroup right_drive({-6, 7, 5}, pros::MotorGears::blue);
 
 lemlib::Drivetrain drivetrain(&left_drive, &right_drive, 11, lemlib::Omniwheel::NEW_325, 450, 2);
 
-pros::Imu imu(15);
+pros::Imu imu(14);
 pros::Rotation enc_vertical(4);
 pros::Rotation enc_horizontal(-22);
-pros::Distance  intake_dist(11);
+pros::Distance  intake_dist(21);
 
 lemlib::TrackingWheel vertTW(&enc_vertical, lemlib::Omniwheel::NEW_275, -6);
 lemlib::TrackingWheel horzTW(&enc_horizontal, lemlib::Omniwheel::NEW_2, -5.75);

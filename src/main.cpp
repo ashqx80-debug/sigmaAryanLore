@@ -25,7 +25,8 @@
 // #include <vector>
 // #include <random>
 // #include <cmath>
-// #include <algorithm>
+// #include <algorithm>    
+bool sus = false;
 
 // Hardware definitions moved to src/hardware.cpp
 
@@ -70,7 +71,7 @@ void initialize()
 
 double expo(double normalizedInput) {
     normalizedInput = pow(normalizedInput, 3);
-    return (normalizedInput / 15000);
+    return (normalizedInput / 10000);
 }
 
 void autonomous(){
@@ -137,6 +138,9 @@ void autonomous(){
         chassis.turnToHeading(90, 1000);
         chassis.waitUntilDone();
         break;
+        case 11:
+        moveF(680, true, true, 70, 0, 1500);
+        chassis.waitUntilDone();
     }
 };
 
@@ -147,7 +151,7 @@ void opcontrol() {
 
 
         int leftY  = master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
-        int rightX = master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X) / 1.1;
+        int rightX = master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X) / 1.17;
 
         int driveForward = expo(leftY);
         int driveTurn    = expo(rightX);
@@ -180,7 +184,7 @@ void opcontrol() {
         }
         else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_A)) {
             intake_motor.move(90);
-            intake_hood_roller.move(-70);
+            intake_hood_roller.move(-35);
 
 
 
@@ -192,7 +196,10 @@ void opcontrol() {
         }
         hoodPiston.set_value(master.get_digital(pros::E_CONTROLLER_DIGITAL_R2));
         midgoalPiston.set_value(master.get_digital(pros::E_CONTROLLER_DIGITAL_A));
-        midgoalDescore.set_value(master.get_digital(pros::E_CONTROLLER_DIGITAL_Y));
+        if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)){
+            sus = !sus;
+            midgoalDescore.set_value(sus);
+        }
         // else if (!isSkills && master.get_digital(pros::E_CONTROLLER_DIGITAL_A)) {
         //     intakePower = 90;
         //     hoodRollerPower = 90;

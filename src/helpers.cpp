@@ -300,8 +300,8 @@ void mechTask(void *)
 
 void moveF(double distance, bool forwards, bool decreasing, int maxSpeed, int minSpeed, int timeOutMs)
 {
-    const double kP = 0.22;
-    const double kD = 0.525;
+    const double kP = 0.32;
+    const double kD = 0.75;
     const double tolerance = 5.0;
     const int settleTime = 100;
 
