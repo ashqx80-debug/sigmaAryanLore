@@ -58,7 +58,7 @@ void initialize()
     chassis.setBrakeMode(pros::E_MOTOR_BRAKE_COAST);
     pros::lcd::initialize();
     chassis.calibrate();
-    pros::delay(1000);
+
 
     // if (ENABLE_MCL)
     // {
@@ -71,11 +71,11 @@ void initialize()
 
 double expo(double normalizedInput) {
     normalizedInput = pow(normalizedInput, 3);
-    return (normalizedInput / 10000);
+    return (normalizedInput / 7000);
 }
 
 void autonomous(){
-    /*
+    /*A 
     1 - left safe | working
     2 - right safe | working
     3 - mid goal (left) | in dev
@@ -151,7 +151,7 @@ void opcontrol() {
 
 
         int leftY  = master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
-        int rightX = master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X) / 1.17;
+        int rightX = master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X) / 1.24;
 
         int driveForward = expo(leftY);
         int driveTurn    = expo(rightX);
