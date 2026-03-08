@@ -27,6 +27,7 @@ pros::Imu imu(14);
 pros::Rotation enc_vertical(4);
 pros::Rotation enc_horizontal(-22);
 pros::Distance  intake_dist(21);
+pros::Distance back_dist(20);
 
 lemlib::TrackingWheel vertTW(&enc_vertical, lemlib::Omniwheel::NEW_275, -6);
 lemlib::TrackingWheel horzTW(&enc_horizontal, lemlib::Omniwheel::NEW_2, -5.75);

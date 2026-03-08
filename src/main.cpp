@@ -139,7 +139,7 @@ void autonomous(){
         chassis.waitUntilDone();
         break;
         case 11:
-        moveF(680, true, true, 70, 0, 1500);
+        moveB(680, false, true, 95, 0, 1000);
         chassis.waitUntilDone();
     }
 };

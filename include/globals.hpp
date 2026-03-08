@@ -30,7 +30,7 @@ extern pros::Rotation enc_vertical;
 extern pros::Rotation enc_horizontal;
 extern pros::Distance intake_dist;
 
-extern lemlib::TrackingWheel vertTW;
+extern pros::Distance back_dist;extern lemlib::TrackingWheel vertTW;
 extern lemlib::TrackingWheel horzTW;
 extern lemlib::OdomSensors odomSensors;
 

@@ -387,8 +387,8 @@ void moveF(double distance, bool forwards, bool decreasing, int maxSpeed, int mi
 }
 void moveB(double distance, bool forwards, bool decreasing, int maxSpeed, int minSpeed, int timeOutMs) {
     // PID constants - tune these for optimal performance
-    const double kP = 0.3;  // Proportional gain
-    const double kD = 0.75;  // Derivative gain
+    const double kP = 0.34;  // Proportional gain
+    const double kD = 0.71;  // Derivative gain
     const double tolerance = 2.5;  // Distance tolerance in mm
     const int settleTime = 55;  // Time to stay within tolerance before exiting (ms)
     
@@ -406,7 +406,7 @@ void moveB(double distance, bool forwards, bool decreasing, int maxSpeed, int mi
         }
         
         // Read current distance from back sensor
-        int32_t currentDistance = intake_dist.get();
+        int32_t currentDistance = back_dist.get();
         
         // If sensor returns error or max reading, stop
         if (currentDistance == PROS_ERR || currentDistance >= 9910) {
