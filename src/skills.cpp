@@ -23,11 +23,11 @@ void skillsProg(){
         rTongue.set_value(true);
         pros::delay(300);
         intake_motor.move(127);
-        chassis.moveToPoint(chassis.getPose().x, 0.5, 900, {.maxSpeed = 55});
+        chassis.moveToPoint(chassis.getPose().x, 1, 900, {.maxSpeed = 62});
         chassis.waitUntilDone();
         left_drive.move_velocity(127);
         right_drive.move_velocity(127);
-        pros::delay(1800);
+        pros::delay(1600);
 
         chassis.moveToPoint(chassis.getPose().x, chassis.getPose().y + 15, 500, {.forwards = false});
         chassis.waitUntilDone();
@@ -43,32 +43,32 @@ void skillsProg(){
         moveB(800, false, true, 95, 0, 900);
         chassis.turnToHeading(90, 600);
         chassis.waitUntilDone();
-        moveB(500, true, false, 95, 0, 550);
+        moveB(500, true, false, 95, 0, 500);
        chassis.turnToHeading(0, 400);
        chassis.waitUntilDone();
-       moveF(1181, false, false, 65, 0, 1150);
+       moveF(1181, false, false, 65, 0, 750);
        intake_motor.move(127);
-       chassis.moveToPoint(chassis.getPose().x, chassis.getPose().y-7, 400, {.forwards = false, .maxSpeed = 85});
-        intake_hood_roller.move(100);
+       chassis.moveToPoint(chassis.getPose().x, chassis.getPose().y-5, 400, {.forwards = false, .maxSpeed = 85});
+        intake_hood_roller.move(127);
         hoodPiston.set_value(true);
         rTongue.set_value(true);
-        pros::delay(1800);
+        pros::delay(1600);
         hoodPiston.set_value(false);
         intake_hood_roller.move(0);
         
-        chassis.moveToPoint(chassis.getPose().x+1, chassis.getPose().y+45.3, 1300, {.maxSpeed = 58});
+        chassis.moveToPoint(chassis.getPose().x+1, chassis.getPose().y+45.7, 1200, {.maxSpeed = 58});
         chassis.waitUntilDone();
         left_drive.move_velocity(127);
         right_drive.move_velocity(127);
         pros::delay(1800);
 
-        chassis.moveToPoint(chassis.getPose().x-2, chassis.getPose().y-48, 1200, {.forwards = false, .maxSpeed = 75});
+        chassis.moveToPoint(chassis.getPose().x-1, chassis.getPose().y-48, 1200, {.forwards = false, .maxSpeed = 75});
         chassis.waitUntilDone();
         rTongue.set_value(false);
-        chassis.moveToPoint(chassis.getPose().x+1, chassis.getPose().y-7, 500, {.forwards = false, .maxSpeed = 85});
-        intake_hood_roller.move(110);
+        chassis.moveToPoint(chassis.getPose().x+3, chassis.getPose().y-7, 500, {.forwards = false, .maxSpeed = 85});
+        intake_hood_roller.move(127);
         hoodPiston.set_value(true);
-        pros::delay(1800);
+        pros::delay(1600);
 
         chassis.moveToPoint(chassis.getPose().x, chassis.getPose().y+5, 500);
         hoodPiston.set_value(false);
@@ -83,7 +83,7 @@ void skillsProg(){
         hoodPiston.set_value(false);
         chassis.moveToPoint(chassis.getPose().x+72, chassis.getPose().y-5, 1100, {.maxSpeed = 95});
         chassis.waitUntilDone();
-        moveF(780, true, true, 85, 0, 800);
+        moveF(780, true, true, 95, 0, 900);
 
         chassis.turnToHeading(0, 500);
         chassis.waitUntilDone();
@@ -111,27 +111,27 @@ void skillsProg(){
         moveB(500, true, false, 85, 0, 600);
         chassis.turnToHeading(180, 500);
         chassis.waitUntilDone();
-        moveF(1161, false, false, 65, 0, 900);
+        moveF(1161, false, false, 75, 0, 700);
         intake_hood_roller.move(127);
         hoodPiston.set_value(true);
         rTongue.set_value(true);
-        chassis.moveToPoint(chassis.getPose().x, chassis.getPose().y+7, 500, {.forwards = false, .maxSpeed = 85});
-        pros::delay(1800);
+        chassis.moveToPoint(chassis.getPose().x, chassis.getPose().y+5, 400, {.forwards = false, .maxSpeed = 85});
+        pros::delay(1600);
         hoodPiston.set_value(false);
         intake_hood_roller.move(0);
-        chassis.moveToPoint(chassis.getPose().x, chassis.getPose().y-48, 1250, {.maxSpeed = 55});
+        chassis.moveToPoint(chassis.getPose().x+2, chassis.getPose().y-48, 1250, {.maxSpeed = 60});
         chassis.waitUntilDone();
 
         left_drive.move_velocity(127);
         right_drive.move_velocity(127);
         pros::delay(1800);
-        chassis.moveToPoint(chassis.getPose().x+3, chassis.getPose().y+47, 1250, {.forwards = false, .maxSpeed = 60});
+        chassis.moveToPoint(chassis.getPose().x+1, chassis.getPose().y+47, 1000, {.forwards = false, .maxSpeed = 70});
         chassis.waitUntilDone();
         rTongue.set_value(false);
-        chassis.moveToPoint(chassis.getPose().x-2, chassis.getPose().y+7, 500, {.forwards = false, .maxSpeed = 85});
+        chassis.moveToPoint(chassis.getPose().x-2, chassis.getPose().y+5, 400, {.forwards = false, .maxSpeed = 85});
         intake_hood_roller.move(127);
         hoodPiston.set_value(true);
-        pros::delay(1800);
+        pros::delay(1600);
         chassis.moveToPoint(chassis.getPose().x, chassis.getPose().y-5, 300, {.maxSpeed = 85});
         chassis.waitUntilDone();
         intake_hood_roller.move(0);

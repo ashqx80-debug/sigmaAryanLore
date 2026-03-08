@@ -151,7 +151,7 @@ void opcontrol() {
 
 
         int leftY  = master.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
-        int rightX = master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X) / 1.24;
+        int rightX = master.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X) / 1.27;
 
         int driveForward = expo(leftY);
         int driveTurn    = expo(rightX);
