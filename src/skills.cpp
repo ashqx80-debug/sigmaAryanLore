@@ -17,55 +17,53 @@ void skillsProg(){
         pros::lcd::print(2, "H %.2lf", imu.get_heading());
 
         chassis.setPose(-12, 26, -90);
-        moveF(660, true, true, 95, 0, 1000);
+        moveF(675, true, true, 95, 0, 1000);
         chassis.turnToHeading(-180, 500);
         chassis.waitUntilDone();
         rTongue.set_value(true);
         pros::delay(300);
         intake_motor.move(127);
-        chassis.moveToPoint(chassis.getPose().x, 1, 900, {.maxSpeed = 62});
+        chassis.moveToPoint(chassis.getPose().x, 0.5, 800, {.maxSpeed = 62});
         chassis.waitUntilDone();
         left_drive.move_velocity(127);
         right_drive.move_velocity(127);
-        pros::delay(1600);
+        pros::delay(1700);
 
-        chassis.moveToPoint(chassis.getPose().x, chassis.getPose().y + 15, 500, {.forwards = false});
+        chassis.moveToPoint(-63, 35, 1000, {.forwards = false, .maxSpeed = 90});
         chassis.waitUntilDone();
-        chassis.turnToHeading(-90, 450);
         rTongue.set_value(false);
         chassis.waitUntilDone();
-        moveF(350, true, true, 75, 0, 500);
-        chassis.turnToHeading(180, 450);
+        chassis.turnToHeading(180, 500);
         chassis.waitUntilDone();
-        intake_motor.move(0);
-        chassis.moveToPoint(chassis.getPose().x, chassis.getPose().y+50, 1200, {.forwards = false,.maxSpeed = 85});
+        chassis.moveToPoint(chassis.getPose().x-0.8, chassis.getPose().y+50, 1200, {.forwards = false,.maxSpeed = 85});
         chassis.waitUntilDone();
-        moveB(800, false, true, 95, 0, 900);
+        intake_motor.move(27);
+        moveB(800, false, true, 85, 0, 1000);
         chassis.turnToHeading(90, 600);
         chassis.waitUntilDone();
-        moveB(500, true, false, 95, 0, 500);
+        moveB(450, true, false, 85, 0, 600);
        chassis.turnToHeading(0, 400);
        chassis.waitUntilDone();
        moveF(1181, false, false, 65, 0, 750);
        intake_motor.move(127);
+       intake_hood_roller.move(127);
        chassis.moveToPoint(chassis.getPose().x, chassis.getPose().y-5, 400, {.forwards = false, .maxSpeed = 85});
-        intake_hood_roller.move(127);
-        hoodPiston.set_value(true);
+
         rTongue.set_value(true);
-        pros::delay(1600);
+        pros::delay(1900);
         hoodPiston.set_value(false);
         intake_hood_roller.move(0);
         
-        chassis.moveToPoint(chassis.getPose().x+1, chassis.getPose().y+45.7, 1200, {.maxSpeed = 58});
+        chassis.moveToPoint(chassis.getPose().x-3, chassis.getPose().y+46.3, 1250, {.maxSpeed = 65});
         chassis.waitUntilDone();
         left_drive.move_velocity(127);
         right_drive.move_velocity(127);
         pros::delay(1800);
 
-        chassis.moveToPoint(chassis.getPose().x-1, chassis.getPose().y-48, 1200, {.forwards = false, .maxSpeed = 75});
+        chassis.moveToPoint(chassis.getPose().x-3, chassis.getPose().y-48, 1200, {.forwards = false, .maxSpeed = 85});
         chassis.waitUntilDone();
         rTongue.set_value(false);
-        chassis.moveToPoint(chassis.getPose().x+3, chassis.getPose().y-7, 500, {.forwards = false, .maxSpeed = 85});
+        chassis.moveToPoint(chassis.getPose().x+3, chassis.getPose().y-5, 500, {.forwards = false, .maxSpeed = 85});
         intake_hood_roller.move(127);
         hoodPiston.set_value(true);
         pros::delay(1600);
@@ -83,7 +81,7 @@ void skillsProg(){
         hoodPiston.set_value(false);
         chassis.moveToPoint(chassis.getPose().x+72, chassis.getPose().y-5, 1100, {.maxSpeed = 95});
         chassis.waitUntilDone();
-        moveF(780, true, true, 95, 0, 900);
+        moveF(770, true, true, 95, 0, 900);
 
         chassis.turnToHeading(0, 500);
         chassis.waitUntilDone();
@@ -100,10 +98,10 @@ void skillsProg(){
         chassis.turnToHeading(90, 500);
         rTongue.set_value(false);
         chassis.waitUntilDone();
-        moveF(350, true, true, 65, 0, 600);
-        chassis.turnToHeading(0, 500);
+        moveF(320, true, true, 65, 0, 600);
+        chassis.turnToHeading(345, 500);
         chassis.waitUntilDone();
-        chassis.moveToPoint(chassis.getPose().x+1.3, chassis.getPose().y-55, 1000, {.forwards = false, .maxSpeed = 85});
+        chassis.moveToPoint(chassis.getPose().x+2.3, chassis.getPose().y-55, 1000, {.forwards = false, .maxSpeed = 85});
         chassis.waitUntilDone();
         moveB(800, false, true, 85, 0, 1000);
         chassis.turnToHeading(-90, 500);

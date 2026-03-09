@@ -307,3 +307,39 @@ void sigSawp(){
     Snacky.set_value(false);
     pros::delay(2000);
 }
+void nigrSawp(){
+    chassis.setPose(15,26,90);
+    moveF(685, true, true, 90, 0, 1000);
+    chassis.turnToHeading(180, 500);
+    chassis.waitUntilDone();
+    rTongue.set_value(true);
+    pros::delay(200);
+    intake_motor.move(127);
+    chassis.moveToPoint(chassis.getPose().x, -0.5, 900, {.maxSpeed = 65});
+    chassis.waitUntilDone();
+    left_drive.move_velocity(127);
+    right_drive.move_velocity(127);
+    pros::delay(400);
+    chassis.moveToPoint(chassis.getPose().x+3, chassis.getPose().y + 44.5, 780, {.forwards = false, .maxSpeed = 85});
+    chassis.waitUntilDone();
+    intake_hood_roller.move(127);
+    chassis.moveToPoint(chassis.getPose().x-2, chassis.getPose().y + 5, 450, {.forwards = false, .maxSpeed = 65});
+    pros::delay(800);
+    rTongue.set_value(false);
+    chassis.moveToPoint(chassis.getPose().x, chassis.getPose().y-10, 450, {.maxSpeed = 85});
+    intake_hood_roller.move(0);
+    chassis.waitUntilDone();
+    chassis.turnToHeading(-135, 500);
+    chassis.waitUntilDone();
+    chassis.moveToPoint(chassis.getPose().x+31, chassis.getPose().y+51, 1000, {.maxSpeed = 85});
+    chassis.waitUntilDone();
+    chassis.turnToHeading(-90, 500);
+    chassis.waitUntilDone();
+    rTongue.set_value(true);
+    pros::delay(200);
+    rTongue.set_value(false);
+    moveB(2200, true, false, 90, 0, 2000);
+    rTongue.set_value(true);
+    pros::delay(150);
+
+}

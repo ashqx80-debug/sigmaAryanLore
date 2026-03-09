@@ -58,6 +58,7 @@ void initialize()
     chassis.setBrakeMode(pros::E_MOTOR_BRAKE_COAST);
     pros::lcd::initialize();
     chassis.calibrate();
+    pros::delay(1000);
 
 
     // if (ENABLE_MCL)
@@ -141,6 +142,10 @@ void autonomous(){
         case 11:
         moveB(680, false, true, 95, 0, 1000);
         chassis.waitUntilDone();
+        break;
+        case 12:
+        nigrSawp();
+        break;
     }
 };
 

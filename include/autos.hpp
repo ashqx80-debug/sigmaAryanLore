@@ -69,6 +69,7 @@ void lowthreeplusfour(void);
 void dheerarightfourballrush(void);
 void dheeraleftfourballrush(void);
 void sigSawp(void);
+void nigrSawp(void);
 
 void unjamTest(void);
 

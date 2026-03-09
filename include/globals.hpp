@@ -6,6 +6,7 @@
 #include "pros/adi.hpp"
 #include "pros/motors.h"
 #include "pros/distance.hpp"
+#include "autos.hpp"
 
 //extern declarations for globals defined in src/main.cpp
 extern pros::Motor intake_motor;
