@@ -189,7 +189,7 @@ void opcontrol() {
         }
         else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_A)) {
             intake_motor.move(90);
-            intake_hood_roller.move(-35);
+            intake_hood_roller.move(-55);
 
 
 

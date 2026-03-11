@@ -29,7 +29,7 @@ pros::Rotation enc_horizontal(-22);
 pros::Distance  intake_dist(21);
 pros::Distance back_dist(20);
 
-lemlib::TrackingWheel vertTW(&enc_vertical, lemlib::Omniwheel::NEW_275, -6);
+lemlib::TrackingWheel vertTW(&enc_vertical, lemlib::Omniwheel::NEW_275, 0.25);
 lemlib::TrackingWheel horzTW(&enc_horizontal, lemlib::Omniwheel::NEW_2, -5.75);
 
 lemlib::OdomSensors odomSensors(&vertTW, nullptr, &horzTW, nullptr, &imu);
