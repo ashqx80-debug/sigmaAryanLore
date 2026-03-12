@@ -2,6 +2,7 @@
 #include "globals.hpp"
 #include <iostream>
 #include <cmath>
+#include <vector>
 
 // If helpers need other heavy headers, they should include them here.
 
