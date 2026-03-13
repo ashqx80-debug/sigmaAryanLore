@@ -8,7 +8,7 @@ pros::adi::DigitalOut hoodPiston('A');
 pros::adi::DigitalOut rTongue('B');
 pros::adi::DigitalOut Snacky('C');
 pros::adi::DigitalOut midgoalPiston('D');
-pros::adi::DigitalOut midgoalDescore('E');
+pros::adi::DigitalOut midgoalDescore('J');
 
 bool hood = false;
 bool snack = false;
