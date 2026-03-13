@@ -63,6 +63,7 @@
 extern "C" {
 #endif
 void skillsProg(void);
+void ngrSkills(void);
 #ifdef __cplusplus
 }
 #endif
