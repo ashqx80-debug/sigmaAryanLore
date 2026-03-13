@@ -16,9 +16,9 @@ void skillsProg(){
     // -------- SKILLS --------
 
         chassis.setPose(-12, 26, -90);
-        moveF(687, true, true, 95, 0, 1000);
+        moveF(693, true, true, 95, 0, 1000);
         chassis.turnToHeading(180, 500);
-        pros::delay(200);
+        pros::delay(150);
         rTongue.set_value(true);
         intake_motor.move(127);
         chassis.waitUntilDone();
@@ -65,7 +65,7 @@ void skillsProg(){
 
         
         chassis.moveToPoint(chassis.getPose().x-1, chassis.getPose().y+36.7, 1300, {.maxSpeed = 60});
-        pros::delay(150);
+        pros::delay(250);
         hoodPiston.set_value(false);
         chassis.waitUntilDone();
         left_drive.move_velocity(30);
@@ -92,7 +92,7 @@ void skillsProg(){
         rTongue.set_value(false);
 
         chassis.moveToPoint(chassis.getPose().x, chassis.getPose().y+7, 600);
-        pros::delay(150);
+        pros::delay(250);
         hoodPiston.set_value(false);
         chassis.moveToPoint(chassis.getPose().x, chassis.getPose().y-4.5, 600,{.forwards=false, .maxSpeed=57});
         chassis.waitUntilDone();
@@ -111,11 +111,11 @@ void skillsProg(){
         rTongue.set_value(true);
         chassis.waitUntilDone();
 
-       chassis.moveToPoint(chassis.getPose().x+0.3, chassis.getPose().y+19.6, 800, { .maxSpeed=65});
+       chassis.moveToPoint(chassis.getPose().x+0.3, chassis.getPose().y+19.1, 1000, { .maxSpeed=55});
 
         chassis.waitUntilDone();
-        left_drive.move_velocity(70);
-        right_drive.move_velocity(70);
+        left_drive.move_velocity(50);
+        right_drive.move_velocity(50);
         pros::delay(1900);
         chassis.turnToPoint(chassis.getPose().x+15.5, chassis.getPose().y-42, 500,{.forwards=false});
         chassis.moveToPoint(chassis.getPose().x+15.5,  chassis.getPose().y-42, 1000, {.forwards=false, .maxSpeed=85});
@@ -144,15 +144,17 @@ void skillsProg(){
 
 
 
-        chassis.moveToPoint(chassis.getPose().x+1, chassis.getPose().y-45.2, 1300, {.maxSpeed = 65});
-        pros::delay(150);
+        chassis.moveToPoint(chassis.getPose().x-0.5, chassis.getPose().y-45.2, 800, {.maxSpeed = 65});
+        pros::delay(250);
         hoodPiston.set_value(false);
         intake_hood_roller.move(0);
         chassis.waitUntilDone();
-        left_drive.move_velocity(60);
-        right_drive.move_velocity(60);
+        left_drive.move_velocity(30);
+        right_drive.move_velocity(30);
         pros::delay(1800);
-        chassis.moveToPoint(chassis.getPose().x+1.5, chassis.getPose().y+45.4, 1000, {.forwards = false, .maxSpeed = 75});
+        chassis.turnToHeading(180, 400);
+        chassis.waitUntilDone();
+        chassis.moveToPoint(chassis.getPose().x, chassis.getPose().y+45.4, 1000, {.forwards = false, .maxSpeed = 75});
         intake_hood_roller.move(100);
         chassis.waitUntilDone();
         hoodPiston.set_value(true);
@@ -169,7 +171,7 @@ void skillsProg(){
         rTongue.set_value(false);
 
         chassis.moveToPoint(chassis.getPose().x, chassis.getPose().y-8, 600);
-        pros::delay(150);
+        pros::delay(250);
         hoodPiston.set_value(false);
         chassis.moveToPoint(chassis.getPose().x, chassis.getPose().y+5.5, 600,{.forwards=false, .maxSpeed=60});
         chassis.waitUntilDone();
@@ -177,14 +179,19 @@ void skillsProg(){
         chassis.waitUntilDone();
         chassis.turnToHeading(-90, 500);
         chassis.waitUntilDone();
-        moveB(1673, true, false, 95, 0, 800);
+        moveB(1663, true, false, 95, 0, 800);
         chassis.turnToHeading(180, 500);
         chassis.waitUntilDone();
         chassis.moveToPoint(chassis.getPose().x, chassis.getPose().y-50, 1200);
         hoodPiston.set_value(true);
         intake_hood_roller.move(127);
+        pros::delay(500);
+        rTongue.set_value(true);
+        pros::delay(250);
+        rTongue.set_value(false);
         chassis.waitUntilDone();
         chassis.moveToPoint(chassis.getPose().x, chassis.getPose().y-15, 600);
+
         chassis.waitUntilDone();
         left_drive.move_velocity(127);
         right_drive.move_velocity(127);
@@ -226,7 +233,7 @@ void ngrSkills(){
     chassis.moveToPoint(chassis.getPose().x-32.9, 20, 1250); 
     chassis.waitUntilDone(); //checkpoint 8
         chassis.turnToHeading(180, 500);
-        pros::delay(200);
+        pros::delay(150);
         rTongue.set_value(true);
         intake_motor.move(127);
         chassis.waitUntilDone();
@@ -273,7 +280,7 @@ void ngrSkills(){
 
         
         chassis.moveToPoint(chassis.getPose().x-1, chassis.getPose().y+36.7, 1300, {.maxSpeed = 60});
-        pros::delay(150);
+        pros::delay(250);
         hoodPiston.set_value(false);
         chassis.waitUntilDone();
         left_drive.move_velocity(30);
@@ -300,7 +307,7 @@ void ngrSkills(){
         rTongue.set_value(false);
 
         chassis.moveToPoint(chassis.getPose().x, chassis.getPose().y+7, 600);
-        pros::delay(150);
+        pros::delay(250);
         hoodPiston.set_value(false);
         chassis.moveToPoint(chassis.getPose().x, chassis.getPose().y-4.5, 600,{.forwards=false, .maxSpeed=57});
         chassis.waitUntilDone();
@@ -319,11 +326,11 @@ void ngrSkills(){
         rTongue.set_value(true);
         chassis.waitUntilDone();
 
-       chassis.moveToPoint(chassis.getPose().x+0.3, chassis.getPose().y+19.6, 800, { .maxSpeed=65});
+       chassis.moveToPoint(chassis.getPose().x+0.3, chassis.getPose().y+19, 900, { .maxSpeed=60});
 
         chassis.waitUntilDone();
-        left_drive.move_velocity(70);
-        right_drive.move_velocity(70);
+        left_drive.move_velocity(50);
+        right_drive.move_velocity(50);
         pros::delay(1900);
         chassis.turnToPoint(chassis.getPose().x+15.5, chassis.getPose().y-42, 500,{.forwards=false});
         chassis.moveToPoint(chassis.getPose().x+15.5,  chassis.getPose().y-42, 1000, {.forwards=false, .maxSpeed=85});
@@ -352,15 +359,17 @@ void ngrSkills(){
 
 
 
-        chassis.moveToPoint(chassis.getPose().x+1, chassis.getPose().y-45.2, 1300, {.maxSpeed = 65});
-        pros::delay(150);
+        chassis.moveToPoint(chassis.getPose().x-0.5, chassis.getPose().y-45.2, 800, {.maxSpeed = 65});
+        pros::delay(250);
         hoodPiston.set_value(false);
         intake_hood_roller.move(0);
         chassis.waitUntilDone();
-        left_drive.move_velocity(60);
-        right_drive.move_velocity(60);
+        left_drive.move_velocity(30);
+        right_drive.move_velocity(30);
         pros::delay(1800);
-        chassis.moveToPoint(chassis.getPose().x+1.5, chassis.getPose().y+45.4, 1000, {.forwards = false, .maxSpeed = 75});
+        chassis.turnToHeading(180, 400);
+        chassis.waitUntilDone();
+        chassis.moveToPoint(chassis.getPose().x, chassis.getPose().y+45.4, 1000, {.forwards = false, .maxSpeed = 75});
         intake_hood_roller.move(100);
         chassis.waitUntilDone();
         hoodPiston.set_value(true);
@@ -377,7 +386,7 @@ void ngrSkills(){
         rTongue.set_value(false);
 
         chassis.moveToPoint(chassis.getPose().x, chassis.getPose().y-8, 600);
-        pros::delay(150);
+        pros::delay(250);
         hoodPiston.set_value(false);
         chassis.moveToPoint(chassis.getPose().x, chassis.getPose().y+5.5, 600,{.forwards=false, .maxSpeed=60});
         chassis.waitUntilDone();
@@ -385,14 +394,19 @@ void ngrSkills(){
         chassis.waitUntilDone();
         chassis.turnToHeading(-90, 500);
         chassis.waitUntilDone();
-        moveB(1673, true, false, 95, 0, 800);
+        moveB(1663, true, false, 95, 0, 800);
         chassis.turnToHeading(180, 500);
         chassis.waitUntilDone();
         chassis.moveToPoint(chassis.getPose().x, chassis.getPose().y-50, 1200);
         hoodPiston.set_value(true);
         intake_hood_roller.move(127);
+        pros::delay(500);
+        rTongue.set_value(true);
+        pros::delay(250);
+        rTongue.set_value(false);
         chassis.waitUntilDone();
         chassis.moveToPoint(chassis.getPose().x, chassis.getPose().y-15, 600);
+
         chassis.waitUntilDone();
         left_drive.move_velocity(127);
         right_drive.move_velocity(127);

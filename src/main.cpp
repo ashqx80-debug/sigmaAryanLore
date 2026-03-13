@@ -85,7 +85,7 @@ void autonomous(){
     6 - sig sawp | not made
     7 - skills | not made
     */
-    int autonSelector = 13;
+    int autonSelector = 7;
     // chassis.setPose(estX, estY, estH * 180 / M_PI);
     Snacky.set_value(true);
     switch (autonSelector){    
@@ -191,7 +191,7 @@ void opcontrol() {
 
         }
         else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_A)) {
-            intake_motor.move(90);
+            intake_motor.move(127);
             intake_hood_roller.move(-55);
 
 
