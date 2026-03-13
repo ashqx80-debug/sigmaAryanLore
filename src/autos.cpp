@@ -220,90 +220,48 @@ void dheeraleftfourballrush(){
 }
 
 void sigSawp(){
-    //right sig swap
-    chassis.setPose(12,26,90);
-    chassis.moveToPoint(48.5, 26, 800);
-    chassis.waitUntilDone(); //checkpoint 1
+            chassis.setPose(12, 26, 90);
+            chassis.moveToPoint(49, 26,950);
+            chassis.turnToHeading(180,450);
+            rTongue.set_value(true);
+            chassis.moveToPoint(chassis.getPose().x, 0,900, {.maxSpeed=80});
+            intake_motor.move(127);
+            pros::delay(600);
+            chassis.moveToPoint(chassis.getPose().x + 3, chassis.getPose().y + 47.5,900, {.forwards = false, .maxSpeed=65});
+            chassis.waitUntilDone();
+            intake_hood_roller.move(127);
+            pros::delay(1500);
+            intake_hood_roller.move(0);
+            chassis.moveToPoint(chassis.getPose().x, chassis.getPose().y - 10 ,900);
+            rTongue.set_value(false);
+            chassis.moveToPoint(chassis.getPose().x-28, chassis.getPose().y +22 ,900);
+            chassis.waitUntil(23);
+            rTongue.set_value(true);
+            pros::delay(300);
+            rTongue.set_value(false);
+            chassis.turnToHeading(270,500);
+            chassis.moveToPoint(chassis.getPose().x-53, chassis.getPose().y,900, {.maxSpeed=65});
+            chassis.waitUntil(53);
+            rTongue.set_value(true);
+            pros::delay(300);
+            chassis.turnToHeading(222,500);
+            chassis.moveToPoint(chassis.getPose().x+23, chassis.getPose().y+23, 900, {.forwards = false,.maxSpeed=65});
+            pros::delay(300);
+            midgoalPiston.set_value(true);
+            intake_hood_roller.move(-90);
+            left_drive.move_velocity(127);
+            right_drive.move_velocity(127);
+            pros::delay(2000);
+            chassis.moveToPoint(chassis.getPose().x-35.5, chassis.getPose().y-33.5, 900);
+            chassis.turnToHeading(180,300);
+            rTongue.set_value(true);
+            chassis.moveToPoint(chassis.getPose().x,0, 700, {.maxSpeed=75});
+            pros::delay(500);
+            chassis.moveToPoint(chassis.getPose().x +1.5, chassis.getPose().y + 42,850, {.forwards = false, .maxSpeed=70});
+            left_drive.move_velocity(127);
+            right_drive.move_velocity(127);
+            intake_hood_roller.move(127);
+}
 
-    chassis.turnToHeading(180, 350);
-    chassis.waitUntilDone();
-
-    intake_motor.move(127);
-    rTongue.set_value(true);
-
-    chassis.moveToPoint(47.8, -2, 900, {.maxSpeed = 75}); //checkpoint 2
-    left_drive.move_velocity(127);
-    right_drive.move_velocity(127); // matchload
-    pros::delay(350);
-    chassis.turnToHeading(180, 400);
-    chassis.moveToPoint(chassis.getPose().x-2.5, chassis.getPose().y + 37.5, 870, {.forwards = false, .maxSpeed = 85});
-
-    //checkpoint 3
-    chassis.waitUntil(36.5);
-    rTongue.set_value(false); 
-    left_drive.move_velocity(-10);
-    right_drive.move_velocity(-10);
-    intake_hood_roller.move(127);
-    intake_motor.move(127);
-
-    hoodPiston.set_value(true);
-    pros::delay(400);
-    left_drive.move_velocity(0);
-    right_drive.move_velocity(0);  
-    //scores blocks
-    pros::delay(600);
-
-    intake_hood_roller.move(0);
-
-
-    chassis.moveToPoint(41, 24, 450);
-    chassis.waitUntil(8);
-    hoodPiston.set_value(false); //checkpoint 4
-    intake_motor.move(127);
-    chassis.turnToPoint(25, 51, 200);
-    chassis.moveToPoint(25, 51, 700, {.maxSpeed=90});
-    chassis.waitUntilDone(); //checkpoint 5
-    rTongue.set_value(false);
-    chassis.moveToPoint(chassis.getPose().x-64.7, chassis.getPose().y+1.35, 1300, {.maxSpeed=95});
-    pros::delay(150);
-    rTongue.set_value(true);
-    chassis.waitUntilDone(); //checkpoint 6
-    intake_motor.move(90);
-
-    chassis.turnToPoint(chassis.getPose().x+6.4, chassis.getPose().y+7.5, 500, {.forwards = false});
-    chassis.moveToPoint(chassis.getPose().x+6.4, chassis.getPose().y+7.5, 750, {.forwards = false});
-    chassis.turnToHeading(-135, 400);
-    chassis.waitUntilDone(); //scores midgoal, checkpoint 7
-    midgoalPiston.set_value(true);
-    left_drive.move_velocity(-20);
-    right_drive.move_velocity(-25);
-    intake_hood_roller.move(-95);
-
-    left_drive.move_velocity(0);
-    right_drive.move_velocity(0);
-    intake_motor.move(100);
-
-    pros::delay(1000);
-
-    intake_motor.move(0);
-    intake_hood_roller.move(0);
-    midgoalPiston.set_value(false);
-    chassis.turnToPoint(chassis.getPose().x-32.9, 20 , 500);
-    chassis.moveToPoint(chassis.getPose().x-32.9, 20, 1250); 
-    chassis.waitUntilDone(); //checkpoint 8
-    chassis.turnToHeading(180, 200);
-    chassis.moveToPoint(chassis.getPose().x-1, chassis.getPose().y -32, 680, {.maxSpeed=85});
-    chassis.waitUntilDone(); //checkpoint 9
-    intake_motor.move(127);
-
-    left_drive.move_velocity(127);
-    right_drive.move_velocity(127);
-    pros::delay(500);
-    chassis.moveToPoint(chassis.getPose().x-1, chassis.getPose().y +38.5, 950, {.forwards = false, .maxSpeed=85});
-    chassis.waitUntilDone(); //checkpoint 10
-    hoodPiston.set_value(true);
-    intake_hood_roller.move(127);
-    intake_motor.move(127);
-    Snacky.set_value(false);
-    pros::delay(2000);
+    
 }
