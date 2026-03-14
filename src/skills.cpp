@@ -22,7 +22,7 @@ void skillsProg(){
         rTongue.set_value(true);
         intake_motor.move(127);
         chassis.waitUntilDone();
-        chassis.moveToPoint(chassis.getPose().x, 1.8, 900, {.maxSpeed = 60});
+        chassis.moveToPoint(chassis.getPose().x, 1.5, 700, {.maxSpeed = 55});
         chassis.waitUntilDone();
         left_drive.move_velocity(50);
         right_drive.move_velocity(50);
@@ -60,22 +60,22 @@ void skillsProg(){
         intake_motor.move(127);
         intake_hood_roller.move(80);
         pros::delay(2200);
-
         intake_hood_roller.move(0);
 
         
-        chassis.moveToPoint(chassis.getPose().x-1, chassis.getPose().y+36.7, 1200, {.maxSpeed = 62});
+        chassis.moveToPoint(chassis.getPose().x, chassis.getPose().y+35.6, 850, {.maxSpeed = 57});
         pros::delay(250);
         hoodPiston.set_value(false);
         chassis.waitUntilDone();
         left_drive.move_velocity(30);
         right_drive.move_velocity(30);
-        pros::delay(1800);
+        pros::delay(2000);
         left_drive.move_velocity(0);
         right_drive.move_velocity(0);
         chassis.turnToHeading(0, 650);
         chassis.waitUntilDone();
-        chassis.moveToPoint(chassis.getPose().x-1, chassis.getPose().y-44.3, 1100, {.forwards = false, .maxSpeed = 80});
+        pros::delay(350);
+        chassis.moveToPoint(chassis.getPose().x, chassis.getPose().y-44.3, 1100, {.forwards = false, .maxSpeed = 80});
         intake_hood_roller.move(100);
         chassis.waitUntilDone();
 
@@ -111,7 +111,7 @@ void skillsProg(){
         rTongue.set_value(true);
         chassis.waitUntilDone();
 
-       chassis.moveToPoint(chassis.getPose().x+0.3, chassis.getPose().y+19.1, 1000, { .maxSpeed=55});
+       chassis.moveToPoint(chassis.getPose().x+0.3, chassis.getPose().y+18.4, 900, { .maxSpeed=55});
 
         chassis.waitUntilDone();
         left_drive.move_velocity(50);
@@ -144,7 +144,7 @@ void skillsProg(){
 
 
 
-        chassis.moveToPoint(chassis.getPose().x-0.5, chassis.getPose().y-45.2, 800, {.maxSpeed = 65});
+        chassis.moveToPoint(chassis.getPose().x-0.5, chassis.getPose().y-45.2, 900, {.maxSpeed = 60});
         pros::delay(250);
         hoodPiston.set_value(false);
         intake_hood_roller.move(0);
@@ -164,7 +164,7 @@ void skillsProg(){
         intake_motor.move(-127);
         pros::delay(250);
         intake_motor.move(127);
-        intake_hood_roller.move(80);
+        intake_hood_roller.move(75);
         pros::delay(2200);
         chassis.setPose(0,0,180);
         intake_motor.move(127);

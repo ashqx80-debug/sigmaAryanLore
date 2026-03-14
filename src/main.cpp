@@ -85,7 +85,7 @@ void autonomous(){
     6 - sig sawp | not made
     7 - skills | not made
     */
-    int autonSelector = 3;
+    int autonSelector = 7 ;
     // chassis.setPose(estX, estY, estH * 180 / M_PI);
     Snacky.set_value(true);
     switch (autonSelector){    
@@ -148,6 +148,11 @@ void autonomous(){
         break;
         case 13:
         ngrSkills();
+        break;
+        case 14:
+        chassis.setPose(0, 0, -90);
+        chassis.moveToPoint(chassis.getPose().x-7, chassis.getPose().y, 1000, {.maxSpeed = 75});
+        chassis.waitUntilDone();
         break;
     }
 };
