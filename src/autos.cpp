@@ -97,14 +97,15 @@ void right7(){
 void midthreeplusfour(){
     //blue left (mid goal)
     chassis.setPose(-12,26,270);
-    chassis.moveToPoint(-48.8, 26, 1000, {.maxSpeed=95});
+    chassis.moveToPoint(-48.5, 26, 900, {.maxSpeed=95});
     chassis.waitUntilDone();
     chassis.turnToHeading(180, 500);
+    pros::delay(200);
     rTongue.set_value(true);
     chassis.moveToPoint(-48.5, -2, 950, {.maxSpeed = 70});
     intake_motor.move(127);
-    left_drive.move_velocity(127);
-    right_drive.move_velocity(127);
+    left_drive.move_velocity(70);
+    right_drive.move_velocity(70);
     pros::delay(750);
     chassis.moveToPoint(chassis.getPose().x+0.5, chassis.getPose().y + 38, 950, {.forwards = false, .maxSpeed=80});
     chassis.waitUntil(36.5);
@@ -114,19 +115,23 @@ void midthreeplusfour(){
     intake_hood_roller.move(127);
     hoodPiston.set_value(true);
     pros::delay(1000);
+
+    chassis.moveToPoint(chassis.getPose().x, chassis.getPose().y-20, 700);
+    pros::delay(250);
     hoodPiston.set_value(false);
     intake_hood_roller.move(0);
-    chassis.moveToPoint(chassis.getPose().x, chassis.getPose().y-20, 700);
     chassis.waitUntilDone();
-    chassis.turnToPoint(-15, 51, 500);
-    chassis.moveToPoint(-15, 51, 1250, {.maxSpeed=85});
+    chassis.turnToPoint(-15, 49, 500);
+    chassis.moveToPoint(-15, 49, 1250, {.maxSpeed=85});
     chassis.waitUntilDone();
     rTongue.set_value(true);
     pros::delay(200);
     chassis.turnToHeading(-135, 800);
     chassis.waitUntilDone();
     pros::delay(300);
-    chassis.moveToPoint(chassis.getPose().x+11.7, chassis.getPose().y+11, 900, {.forwards = false});
+    chassis.moveToPoint(chassis.getPose().x+15.5, chassis.getPose().y+10.5, 1000, {.forwards = false});
+    chassis.waitUntilDone();
+    chassis.turnToHeading(225, 500);
     chassis.waitUntilDone();
     midgoalPiston.set_value(true);
     intake_hood_roller.move(-97);
@@ -137,7 +142,9 @@ void midthreeplusfour(){
     chassis.waitUntilDone();
     chassis.turnToHeading(180, 500);
     Snacky.set_value(false);
-    chassis.moveToPoint(chassis.getPose().x+2, chassis.getPose().y+18, 1050, {.forwards = false});
+    chassis.moveToPoint(chassis.getPose().x, chassis.getPose().y+16, 900, {.forwards = false});
+    chassis.waitUntilDone();
+    chassis.turnToHeading(180, 500);
     chassis.waitUntilDone();
 }
 
