@@ -132,7 +132,7 @@ void midthreeplusfour(){
     chassis.turnToHeading(-135, 800);
     chassis.waitUntilDone();
     pros::delay(300);
-    chassis.moveToPoint(chassis.getPose().x+10, chassis.getPose().y+13, 900, {.forwards = false});
+    chassis.moveToPoint(chassis.getPose().x+14.5, chassis.getPose().y+11, 900, {.forwards = false});
     chassis.waitUntilDone();
     midgoalPiston.set_value(true);
     intake_hood_roller.move(-97);
@@ -145,9 +145,10 @@ void midthreeplusfour(){
     midgoalDescore.set_value(true);
     chassis.turnToHeading(180, 500);
     Snacky.set_value(false);
-    chassis.moveToPoint(chassis.getPose().x+2, chassis.getPose().y+18, 1050, {.forwards = false});
+    chassis.moveToPoint(chassis.getPose().x, chassis.getPose().y+18, 950, {.forwards = false});
     chassis.waitUntilDone();
-}
+    chassis.turnToHeading(180, 500);
+}5
 
 void dheerarightfourballrush(){
     //red right (four ball)
