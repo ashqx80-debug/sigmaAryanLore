@@ -85,7 +85,7 @@ void autonomous(){
     6 - sig sawp | not made
     7 - skills | not made
     */
-    int autonSelector = 3;
+    int autonSelector = 2;
     // chassis.setPose(estX, estY, estH * 180 / M_PI);
     Snacky.set_value(true);
     switch (autonSelector){    
