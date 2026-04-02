@@ -70,6 +70,9 @@ void dheerarightfourballrush(void);
 void dheeraleftfourballrush(void);
 void sigSawp(void);
 void nigrSawp(void);
+void skillsProg(void);
+void ngrSkills(void);
+void moveB(void);
 
 void unjamTest(void);
 
