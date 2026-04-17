@@ -808,7 +808,7 @@ void updateMode() {
 
 // ─── Run selected auton ───────────────────────────────────────────────────────
 void runSelectedAuton() {
-    switch (selectedAuton) {
+    switch (0) {
         case  0: left7();                   break;
         case  1: right7();                  break;
         case  2: midthreeplusfour();        break;
@@ -818,6 +818,13 @@ void runSelectedAuton() {
         case  6: skillsProg();              break;
         case 11: nigrSawp();                break;
         case 12: ngrSkills();               break;
+        case 13:
+        chassis.setPose(0,0,0);
+        chassis.moveToPoint(0, 24, 3000);
+        chassis.waitUntilDone();
+        chassis.moveToPoint(0, 48, 3000);
+        chassis.waitUntilDone();
+        chassis.moveToPoint(0, 0, 4000, {.forwards = false});   break;
         default: break;
     }
 }
