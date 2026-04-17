@@ -48,6 +48,7 @@ void autonomous() {
 void opcontrol() {
     currentMode = DRIVER;
     markDirty();
+    bool dih = false;
 
     while (true) {
         updateMode();
@@ -68,6 +69,12 @@ void opcontrol() {
         if (currentMode == DRIVER) {
 
             if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
+                if(dih){
+                    intake_motor.move(-127);
+                    intake_hood_roller.move(-127);
+                    pros::delay(250);
+                    dih = false;
+                }
                 intake_motor.move(127);
                 intake_hood_roller.move(127);
             }
@@ -81,7 +88,7 @@ void opcontrol() {
             }
             else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_A)) {
                 intake_motor.move(127);
-                intake_hood_roller.move(-70);
+                intake_hood_roller.move(127);
             }
             else {
                 intake_motor.move(0);
@@ -110,8 +117,12 @@ void opcontrol() {
             }
             if (master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2)) {
                 Hoard.set_value(false);
+                dih = true;
             }
             if (master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)) {
+                Hoard.set_value(true);
+            }
+            if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)) {
                 Hoard.set_value(false);
             }
         }
