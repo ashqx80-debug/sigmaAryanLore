@@ -18,8 +18,8 @@ bool unjamEnabled = true;
 
 pros::Controller master(pros::E_CONTROLLER_MASTER);
 
-pros::MotorGroup left_drive({7, -8, -6}, pros::MotorGears::blue);
-pros::MotorGroup right_drive({-4, 3, 5}, pros::MotorGears::blue);
+pros::MotorGroup left_drive({7, -4, -6}, pros::MotorGears::blue);
+pros::MotorGroup right_drive({-8, 3, 5}, pros::MotorGears::blue);
 
 lemlib::Drivetrain drivetrain(&left_drive, &right_drive, 9.75, lemlib::Omniwheel::NEW_325, 450, 2);
 
@@ -35,7 +35,7 @@ lemlib::TrackingWheel horzTW(&enc_horizontal, lemlib::Omniwheel::NEW_2, -5.75);
 
 lemlib::OdomSensors odomSensors(&vertTW, nullptr, &horzTW, nullptr, &imu);
 
-lemlib::ControllerSettings lateral(6.54, 0.0001, 0.4, 6, 3, 100, 3, 500, 20);
+lemlib::ControllerSettings lateral(6.54, 0.0001, 0.4, 3, 3, 1, 3, 500, 20);
 lemlib::ControllerSettings angular(2.04, 0.0001, 18, 3, 1, 100, 3, 500, 0);
 
 lemlib::Chassis chassis(drivetrain, lateral, angular, odomSensors);

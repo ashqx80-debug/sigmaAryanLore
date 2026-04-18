@@ -808,7 +808,7 @@ void updateMode() {
 
 // ─── Run selected auton ───────────────────────────────────────────────────────
 void runSelectedAuton() {
-    switch (0) {
+    switch (2) {
         case  0: left7();                   break;
         case  1: right7();                  break;
         case  2: midthreeplusfour();        break;

@@ -37,7 +37,6 @@ void initialize() {
     pros::lcd::initialize();
     chassis.calibrate();
     pros::delay(1000);
-    drawUI();
 }
 
 void autonomous() {

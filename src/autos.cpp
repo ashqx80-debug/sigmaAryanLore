@@ -15,6 +15,7 @@ void left7(){
     chassis.setPose(-12,26,0);
     chassis.moveToPoint(-27, 50, 1200, {.maxSpeed=75});
     intake_motor.move(127);
+    intake_hood_roller.move(127);
     chassis.waitUntil(20);
     rTongue.set_value(true);
     chassis.waitUntilDone();
@@ -22,35 +23,33 @@ void left7(){
     chassis.moveToPoint(-52, 20, 1200);
     chassis.waitUntil(16);
     chassis.turnToHeading(180, 800);
-    chassis.moveToPoint(-50,42, 800, {.forwards = false});
+    chassis.moveToPoint(-50,42, 800, {.forwards = false, .maxSpeed=75});
+    chassis.waitUntil(39);
     Hoard.set_value(false); 
     chassis.waitUntilDone();
-    intake_motor.move(127);
-    intake_hood_roller.move(127);
+
 
     pros::delay(1200);
     chassis.turnToHeading(180, 800);
     Hoard.set_value(true);
-    chassis.moveToPoint(-49, -0.5, 1000, {.minSpeed=75});
+    chassis.moveToPoint(-49, 0.5, 1000, {.minSpeed=65});
     chassis.waitUntil(5);
-    intake_hood_roller.move(0);
     chassis.waitUntilDone();
     pros::delay(800);
     chassis.moveToPoint(-48,24, 800, {.forwards = false});
     chassis.turnToHeading(180, 800);
-    chassis.moveToPoint(-48, 42, 800, {.forwards = false});
+    chassis.moveToPoint(-48, 42, 800, {.forwards = false, .maxSpeed=75});
     rTongue.set_value(false);
     Hoard.set_value(false);
     chassis.waitUntilDone();
     intake_motor.move(127);
     intake_hood_roller.move(127);
-    hoodPiston.set_value(true);
     pros::delay(750);
-    chassis.moveToPoint(-48, 30, 200);
-    hoodPiston.set_value(false);
+    chassis.moveToPoint(-48, 30, 600);
+
     intake_hood_roller.move(0);
     intake_motor.move(0);
-    chassis.moveToPoint(-48, 48, 500, {.minSpeed = 80});
+    chassis.moveToPoint(-48, 48, 500, {.forwards = false, .minSpeed = 80});
 }
 
 void right7(){
@@ -98,24 +97,24 @@ void right7(){
 void midthreeplusfour(){
     //blue left (mid goal)
     chassis.setPose(-12,26,270);
-    chassis.moveToPoint(-48.5, 26, 900, {.maxSpeed=95});
+    chassis.moveToPoint(-46.5, 26, 800, {.maxSpeed=95});
     chassis.waitUntilDone();
     chassis.turnToHeading(180, 500);
     pros::delay(200);
     rTongue.set_value(true);
-    chassis.moveToPoint(-48.5, -2, 950, {.maxSpeed = 70});
+    chassis.moveToPoint(-46.5, 0, 950, {.maxSpeed = 70});
     intake_motor.move(127);
+    intake_hood_roller.move(127);
     left_drive.move_velocity(70);
     right_drive.move_velocity(70);
     pros::delay(750);
-    chassis.moveToPoint(chassis.getPose().x+0.5, chassis.getPose().y + 38, 950, {.forwards = false, .maxSpeed=80});
+    chassis.moveToPoint(chassis.getPose().x+0.5, chassis.getPose().y + 38.5, 950, {.forwards = false, .maxSpeed=80});
     chassis.waitUntil(36.5);
-    left_drive.move_velocity(-20);
-    right_drive.move_velocity(-20);
     rTongue.set_value(false);
-    intake_hood_roller.move(127);
-    hoodPiston.set_value(true);
-    pros::delay(1000);
+    Hoard.set_value(false);
+    chassis.waitUntilDone();
+    chassis.moveToPoint(chassis.getPose().x+0.5, chassis.getPose().y + 10, 700, {.forwards = false});
+    pros::delay(1500);
 
     chassis.moveToPoint(chassis.getPose().x, chassis.getPose().y-20, 700);
     pros::delay(250);
@@ -152,78 +151,70 @@ void midthreeplusfour(){
 void dheerarightfourballrush(){
     //red right (four ball)
     // elims right (4 ball descore) speed i need this
-    chassis.setPose(12, 26, 90);
-    Snacky.set_value(true);
-    chassis.moveToPoint(49, 26,1200);
-    chassis.waitUntilDone();
-    chassis.turnToHeading(180,450);
-    rTongue.set_value(true);
-    chassis.moveToPoint(chassis.getPose().x, 0,900, {.maxSpeed=75});
-    intake_motor.move(127);
-    left_drive.move_velocity(127);
-    right_drive.move_velocity(127);
-    pros::delay(300);
-    left_drive.move_velocity(0);
-    right_drive.move_velocity(0);
-    //  chassis.turnToPoint(47, 46,950, {.forwards = false});
-    chassis.moveToPoint(chassis.getPose().x+1, 45,1600, {.forwards = false, .maxSpeed=85});
-    rTongue.set_value(false);
-    chassis.waitUntilDone();
+    chassis.setPose(12, 26, 0);
     intake_hood_roller.move(127);
-    hoodPiston.set_value(true);
-    pros::delay(1500);
-    hoodPiston.set_value(false);
-    intake_hood_roller.move(0);
-    intake_motor.move(0);
-    chassis.moveToPoint(chassis.getPose().x, chassis.getPose().y - 10, 500);
+    intake_motor.move(127);
+    chassis.moveToPoint(29.5, 52.5,1100, {.maxSpeed=95});
+    chassis.waitUntil(25);
+    rTongue.set_value(true);
+
+    //  chassis.turnToPoint(47, 46,950, {.forwards = false});
+    chassis.moveToPoint(chassis.getPose().x+17.3, 36,1170, {.forwards = false, .maxSpeed=95});
+    pros::delay(200);
     rTongue.set_value(false);
-    chassis.turnToHeading(90,500);
-    chassis.moveToPoint(64.3,34,1000);
     chassis.waitUntilDone();
-    chassis.turnToHeading(-180,500);
-    chassis.moveToPoint(chassis.getPose().x, chassis.getPose().y + 14, 2000, {.forwards = false});
+    chassis.turnToHeading(180,  450);
+    chassis.waitUntilDone();
+    chassis.moveToPoint(chassis.getPose().x+0.5, chassis.getPose().y+14.5, 800, {.forwards = false, .maxSpeed=95});
+    pros::delay(300);
+    Hoard.set_value(false);
+    chassis.waitUntilDone();
+    chassis.moveToPoint(chassis.getPose().x-1, chassis.getPose().y+10, 700, {.forwards = false});
+    pros::delay(1500);
+    chassis.moveToPoint(chassis.getPose().x-1, chassis.getPose().y - 8,450);
+    chassis.waitUntilDone();
+    chassis.moveToPoint(chassis.getPose().x-15, chassis.getPose().y - 6,1050);
+    chassis.waitUntilDone();
+    chassis.turnToHeading(340, 400);
+    chassis.waitUntilDone();
     Snacky.set_value(false);
+    chassis.moveToPoint(chassis.getPose().x+1, chassis.getPose().y + 33.5, 1500, {.maxSpeed=95});
+    chassis.waitUntilDone();
+    chassis.turnToHeading(10,500);
 }
 
 void dheeraleftfourballrush(){
-    chassis.setPose(12, 26, 90);
-    Snacky.set_value(true);
+    // elims right (4 ball descore) speed i need this
+    chassis.setPose(-12, 26, 0);
+    intake_hood_roller.move(127);
     intake_motor.move(127);
-    
-    chassis.moveToPoint(27, 52, 1250, {.maxSpeed=75});
-    chassis.waitUntilDone();
+    chassis.moveToPoint(-29.5, 52.5,1100, {.maxSpeed=95});
+    chassis.waitUntil(25);
     rTongue.set_value(true);
-    chassis.moveToPoint(49, 26,1200);
-    chassis.turnToHeading(180,950);
-    
-    chassis.moveToPoint(48, 0,1400, {.maxSpeed=65});
-    intake_motor.move(127);
-    left_drive.move_velocity(127);
-    right_drive.move_velocity(127);
+
+    //  chassis.turnToPoint(47, 46,950, {.forwards = false});
+    chassis.moveToPoint(chassis.getPose().x-16, 36,1170, {.forwards = false, .maxSpeed=95});
+    pros::delay(200);
+    rTongue.set_value(false);
+    chassis.waitUntilDone();
+    chassis.turnToHeading(180,  450);
+    chassis.waitUntilDone();
+    chassis.moveToPoint(chassis.getPose().x-0.5, chassis.getPose().y+14.5, 800, {.forwards = false, .maxSpeed=95});
     pros::delay(300);
-    left_drive.move_velocity(0);
-    right_drive.move_velocity(0);
-    chassis.turnToPoint(chassis.getPose().x, 46,950, {.forwards = false});
-    chassis.moveToPoint(45.7, 46,950, {.forwards = false, .maxSpeed=85});
-    rTongue.set_value(false);
+    Hoard.set_value(false);
     chassis.waitUntilDone();
-    intake_hood_roller.move(100);
-    hoodPiston.set_value(true);
-    intake_motor.move(-127);
-    pros::delay(250);
-    intake_motor.move(127);
+    chassis.moveToPoint(chassis.getPose().x+1, chassis.getPose().y+10, 700, {.forwards = false});
     pros::delay(1500);
-    hoodPiston.set_value(false);
-    intake_hood_roller.move(0);
-    intake_motor.move(0);
-    chassis.moveToPoint(chassis.getPose().x, chassis.getPose().y - 10, 500);
-    rTongue.set_value(false);
-    chassis.turnToHeading(90,500);
-    chassis.moveToPoint(64.3,34,1000);
+    chassis.moveToPoint(chassis.getPose().x+1, chassis.getPose().y - 8,450);
     chassis.waitUntilDone();
-    chassis.turnToHeading(-180,500);
-    Snacky.set_value(false);  
-    chassis.moveToPoint(chassis.getPose().x+1, chassis.getPose().y + 12, 2000, {.forwards = false});
+    chassis.moveToPoint(chassis.getPose().x+15, chassis.getPose().y - 6,1050);
+    chassis.waitUntilDone();
+    chassis.turnToHeading(190, 400);
+    chassis.waitUntilDone();
+    Snacky.set_value(false);
+    chassis.moveToPoint(chassis.getPose().x-1, chassis.getPose().y + 33.5, 1500, {.forwards = false, .maxSpeed=95});
+    chassis.waitUntilDone();
+    chassis.turnToHeading(170,500);
     
 }
 
